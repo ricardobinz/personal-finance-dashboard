@@ -1,110 +1,131 @@
-# Personal Investment & Financial Independence (FI) Dashboard
+# Personal Finance Dashboard
 
-A clean, minimalistic React application to track portfolio allocation, project wealth under multiple scenarios, estimate FI income using the 4% rule, and visualize net worth history. Built with React + Vite, Tailwind CSS, shadcn-style UI components, Recharts, and a minimal Express server.
+A comprehensive React application for tracking personal finances, investment portfolio, and progress towards financial independence. Built with React + Vite, Tailwind CSS, shadcn/ui components, Recharts, and a minimal Express server.
 
-## Features (MVP)
-- Portfolio Tracker
-  - Enter assets with current value and target allocation %
-  - See current allocation vs target (pie chart)
-  - Suggests which asset to buy next (largest positive gap)
-- Wealth Projection (3 scenarios)
-  - Inputs: pessimistic/realistic/optimistic return rates
-  - Inputs: contribution amount (monthly/annual) and time horizon (years)
-  - Line chart showing 3 scenario curves
-- Financial Independence Estimator (4% Rule)
-  - Calculate FI income (4%) and safety band (3.5%–4.5%)
-  - Estimate years to FI (when FI income ≥ expenses)
-- Expense Tracking
-  - Track monthly expenses
-  - Projection: when FI income surpasses expenses
-- Net Worth History
-  - Save snapshot whenever asset values are updated
-  - Show past history and projected future (realistic) on a line chart
+## Features
+
+### Portfolio Tracking
+- Track multiple assets with current values and target allocations
+- Visual allocation vs target with interactive pie charts
+- Smart suggestions for rebalancing (identifies largest allocation gaps)
+
+### Income & Expense Management
+- **Income Tracking**: Add and manage multiple income streams
+- **Expense Categories**: Categorize expenses (e.g., housing, groceries, entertainment)
+- **Savings Analysis**: Automatic calculation of monthly savings and savings rate
+- **One-click Setup**: Easily set your monthly savings as your investment contribution
+
+### Financial Independence Planning
+- **4% Rule Calculator**: Project safe withdrawal amounts
+- **FI Progress**: Visual indicator of progress toward financial independence
+- **Multiple Scenarios**: Compare pessimistic/realistic/optimistic return scenarios
+
+### Wealth Projection
+- Interactive charts showing net worth growth over time
+- Adjustable contribution amounts and frequencies
+- Visualize different market return scenarios
+
+### Net Worth Tracking
+- Manual snapshot system to track net worth over time
+- Historical net worth visualization
+- Undo functionality for accidental snapshots
 
 ## Tech Stack
-- Frontend: React (Vite) + Tailwind CSS + shadcn-style components
-- Charts: Recharts
-- State: React Context + hooks
-- Persistence: localStorage (no auth / DB for MVP)
-- Server: Minimal Node.js + Express (utility only)
-
-## Project Structure
-```
-personal-finances/
-├─ server/
-│  ├─ index.js
-│  └─ package.json
-├─ client/
-│  ├─ index.html
-│  ├─ package.json
-│  ├─ vite.config.js
-│  ├─ postcss.config.js
-│  ├─ tailwind.config.js
-│  └─ src/
-│     ├─ main.jsx
-│     ├─ App.jsx
-│     ├─ index.css
-│     ├─ context/
-│     │  └─ AppContext.jsx
-│     ├─ utils/
-│     │  ├─ finance.js
-│     │  └─ storage.js
-│     ├─ components/
-│     │  ├─ ui/
-│     │  │  ├─ card.jsx
-│     │  │  └─ button.jsx
-│     │  ├─ forms/
-│     │  │  ├─ AssetsForm.jsx
-│     │  │  ├─ AssumptionsForm.jsx
-│     │  │  └─ ExpensesForm.jsx
-│     │  └─ charts/
-│     │     ├─ PortfolioPieChart.jsx
-│     │     ├─ WealthProjectionChart.jsx
-│     │     ├─ FIProgressChart.jsx
-│     │     └─ NetWorthHistoryChart.jsx
-│     └─ pages/
-│        └─ Dashboard.jsx
-├─ package.json
-└─ README.md
-```
+- **Frontend**: React 18 + Vite
+- **Styling**: Tailwind CSS + shadcn/ui components
+- **Data Visualization**: Recharts
+- **State Management**: React Context API + Hooks
+- **Persistence**: localStorage (client-side only, no backend required)
+- **Build Tool**: Vite
+- **Deployment**: GitHub Pages (ready to deploy)
 
 ## Getting Started
 
-Prerequisites:
-- Node.js 18+ and npm
+### Prerequisites
+- Node.js 16+ and npm/yarn
 
-Install all dependencies:
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/ricardobinz/personal-finance-dashboard.git
+   cd personal-finance-dashboard
+   ```
+
+2. Install dependencies:
+   ```bash
+   # Install root dependencies
+   npm install
+   
+   # Install client dependencies
+   cd client
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   # From the client directory
+   npm run dev
+   ```
+
+4. Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+## Project Structure
+
 ```
-npm install
-npm run install:all
+personal-finances/
+├── client/                 # Frontend React application
+│   ├── public/             # Static files
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   │   ├── charts/     # Data visualization components
+│   │   │   └── forms/      # Form components
+│   │   ├── context/        # React context providers
+│   │   ├── pages/          # Page components
+│   │   └── utils/          # Utility functions
+│   └── package.json        # Frontend dependencies
+│
+├── server/                 # Minimal Express server (optional)
+│   ├── index.js
+│   └── package.json
+│
+├── .gitignore
+└── README.md
 ```
 
-Run the app (client + server concurrently):
-```
+## Development
+
+### Available Scripts
+
+In the project directory, you can run:
+
+```bash
+# Start both client and server in development mode
 npm run dev
-```
-- Client runs at: http://localhost:5173
-- Server runs at: http://localhost:4000
 
-You can also run them independently:
-```
-# In root (server via root script)
-npm run dev:server
+# Client runs at: http://localhost:5173
+# Server runs at: http://localhost:4000
 
-# Client
+# Run them independently:
+
+# Start just the client
 npm --prefix client run dev
+
+# Start just the server
+npm run dev:server
 ```
 
 ## Data Persistence
-- This MVP uses browser `localStorage` for all app data (assets, assumptions, expenses, history).
-- No authentication or database is used.
+- This application uses browser `localStorage` for all app data (assets, assumptions, expenses, incomes, and history).
+- No authentication or database is required - all data stays in your browser.
 
 ## Notes on Calculations
-- Allocation proportion = `asset_value / total_portfolio`
-- Allocation gap = `target% - current%`
-- Wealth projection uses annual compounding and annualized contributions. Monthly contributions are converted to annual by multiplying by 12.
-- FI income = `net_worth × withdrawal_rate`. Default 4%, plus safety band 3.5%–4.5%.
-- Years to FI = first year where FI income ≥ annual expenses.
+- **Allocation proportion** = `asset_value / total_portfolio`
+- **Allocation gap** = `target% - current%`
+- **Wealth projection** uses annual compounding with configurable contribution frequencies
+- **FI income** = `net_worth × withdrawal_rate` (default 4%, with safety band 3.5%–4.5%)
+- **Years to FI** = first year where FI income ≥ annual expenses
+- **Savings rate** = `(monthly_income - monthly_expenses) / monthly_income`
 
 ## License
 MIT
