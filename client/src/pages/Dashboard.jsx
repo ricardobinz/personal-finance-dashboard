@@ -69,7 +69,7 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>FI Progress (4% Rule)</CardTitle>
+            <CardTitle>Financial Independence Progress (4% Rule)</CardTitle>
           </CardHeader>
           <CardContent>
             <FIProgressChart data={fiData} />
