@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { getJSON, setJSON } from '../utils/storage.js'
 import { sumAssetsValue } from '../utils/finance.js'
+import { useAuth } from './AuthContext.jsx'
+import { loadUserData, saveUserData } from '../utils/cloudSync.js'
 
 const STORAGE_KEYS = {
   assets: 'pf_assets',
@@ -26,24 +28,112 @@ const defaultHistory = [] // { date: ISO, netWorth }
 const AppContext = createContext(null)
 
 export function AppProvider({ children }) {
-  const [assets, setAssets] = useState(() => getJSON(STORAGE_KEYS.assets, defaultAssets))
-  const [assumptions, setAssumptions] = useState(() => getJSON(STORAGE_KEYS.assumptions, defaultAssumptions))
-  const [expenses, setExpenses] = useState(() => {
-    const storedExpenses = getJSON(STORAGE_KEYS.expenses)
-    if (storedExpenses && storedExpenses.monthly) {
-      return { categories: [{ id: crypto.randomUUID(), name: 'Monthly', amount: storedExpenses.monthly }] }
-    }
-    return storedExpenses || defaultExpenses
-  })
-  const [incomes, setIncomes] = useState(() => getJSON(STORAGE_KEYS.incomes, defaultIncomes))
-  const [history, setHistory] = useState(() => getJSON(STORAGE_KEYS.history, defaultHistory))
+  const { user } = useAuth()
+  // Unauthenticated by default: start with empty/default state
+  const [assets, setAssets] = useState(defaultAssets)
+  const [assumptions, setAssumptions] = useState(defaultAssumptions)
+  const [expenses, setExpenses] = useState(defaultExpenses)
+  const [incomes, setIncomes] = useState(defaultIncomes)
+  const [history, setHistory] = useState(defaultHistory)
+  const [hydratedFromCloud, setHydratedFromCloud] = useState(false)
+  const lastSavedRef = useRef(null)
 
-  // Persist to localStorage
-  useEffect(() => setJSON(STORAGE_KEYS.assets, assets), [assets])
-  useEffect(() => setJSON(STORAGE_KEYS.assumptions, assumptions), [assumptions])
-  useEffect(() => setJSON(STORAGE_KEYS.expenses, expenses), [expenses])
-  useEffect(() => setJSON(STORAGE_KEYS.incomes, incomes), [incomes])
-  useEffect(() => setJSON(STORAGE_KEYS.history, history), [history])
+  // Persist to localStorage ONLY when authenticated (acts as client cache)
+  useEffect(() => { if (user) setJSON(STORAGE_KEYS.assets, assets) }, [user, assets])
+  useEffect(() => { if (user) setJSON(STORAGE_KEYS.assumptions, assumptions) }, [user, assumptions])
+  useEffect(() => { if (user) setJSON(STORAGE_KEYS.expenses, expenses) }, [user, expenses])
+  useEffect(() => { if (user) setJSON(STORAGE_KEYS.incomes, incomes) }, [user, incomes])
+  useEffect(() => { if (user) setJSON(STORAGE_KEYS.history, history) }, [user, history])
+
+  // On sign-out: clear in-memory state and localStorage
+  useEffect(() => {
+    if (!user) {
+      setAssets(defaultAssets)
+      setAssumptions(defaultAssumptions)
+      setExpenses(defaultExpenses)
+      setIncomes(defaultIncomes)
+      setHistory(defaultHistory)
+      try {
+        localStorage.removeItem(STORAGE_KEYS.assets)
+        localStorage.removeItem(STORAGE_KEYS.assumptions)
+        localStorage.removeItem(STORAGE_KEYS.expenses)
+        localStorage.removeItem(STORAGE_KEYS.incomes)
+        localStorage.removeItem(STORAGE_KEYS.history)
+      } catch (e) {}
+    }
+  }, [user])
+
+  // Hydrate from Supabase on login
+  useEffect(() => {
+    let canceled = false
+    async function run() {
+      if (!user) {
+        setHydratedFromCloud(false)
+        return
+      }
+      try {
+        // Optionally hydrate from local cache while remote loads to reduce UI flicker
+        const cachedAssets = getJSON(STORAGE_KEYS.assets, null)
+        const cachedAssumptions = getJSON(STORAGE_KEYS.assumptions, null)
+        const cachedExpenses = getJSON(STORAGE_KEYS.expenses, null)
+        const cachedIncomes = getJSON(STORAGE_KEYS.incomes, null)
+        const cachedHistory = getJSON(STORAGE_KEYS.history, null)
+        if (
+          cachedAssets || cachedAssumptions || cachedExpenses || cachedIncomes || cachedHistory
+        ) {
+          setAssets(cachedAssets ?? defaultAssets)
+          setAssumptions(cachedAssumptions ?? defaultAssumptions)
+          setExpenses(cachedExpenses ?? defaultExpenses)
+          setIncomes(cachedIncomes ?? defaultIncomes)
+          setHistory(cachedHistory ?? defaultHistory)
+        }
+
+        const remote = await loadUserData(user.id)
+        if (canceled) return
+        if (remote) {
+          setAssets(remote.assets ?? defaultAssets)
+          setAssumptions(remote.assumptions ?? defaultAssumptions)
+          setExpenses(remote.expenses ?? defaultExpenses)
+          setIncomes(remote.incomes ?? defaultIncomes)
+          setHistory(remote.history ?? defaultHistory)
+        } else {
+          // Initialize remote with current local data
+          const payload = { assets, assumptions, expenses, incomes, history }
+          try {
+            await saveUserData(user.id, payload)
+            lastSavedRef.current = JSON.stringify(payload)
+          } catch (e) {
+            console.warn('Failed to initialize remote data', e)
+          }
+        }
+      } catch (e) {
+        console.warn('Cloud sync load error', e)
+      } finally {
+        if (!canceled) setHydratedFromCloud(true)
+      }
+    }
+    run()
+    return () => {
+      canceled = true
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
+
+  // Debounced save to Supabase when authenticated and hydrated
+  useEffect(() => {
+    if (!user || !hydratedFromCloud) return
+    const payload = { assets, assumptions, expenses, incomes, history }
+    const json = JSON.stringify(payload)
+    if (lastSavedRef.current === json) return
+    const handle = setTimeout(() => {
+      saveUserData(user.id, payload)
+        .then(() => {
+          lastSavedRef.current = json
+        })
+        .catch((e) => console.warn('Cloud save error', e))
+    }, 600)
+    return () => clearTimeout(handle)
+  }, [user, hydratedFromCloud, assets, assumptions, expenses, incomes, history])
 
   const netWorth = useMemo(() => sumAssetsValue(assets), [assets])
 

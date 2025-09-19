@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useApp } from '../context/AppContext.jsx'
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card.jsx'
 import { Button } from '../components/ui/button.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 import PortfolioPieChart from '../components/charts/PortfolioPieChart.jsx'
 import WealthProjectionChart from '../components/charts/WealthProjectionChart.jsx'
 import FIProgressChart from '../components/charts/FIProgressChart.jsx'
@@ -14,6 +15,10 @@ import { calculateAllocation, projectScenarios, buildFIIncomeSeries, annualizeCo
 
 export default function Dashboard() {
   const { assets, assumptions, expenses, incomes, netWorth, history, snapshotNetWorth, undoLastSnapshot, setAssumptions } = useApp()
+  const { user, signOut, signInWithEmail } = useAuth()
+  const [email, setEmail] = useState('')
+  const [status, setStatus] = useState('idle') // idle | sending | sent | error
+  const [error, setError] = useState('')
 
   const allocation = useMemo(() => calculateAllocation(assets), [assets])
 
@@ -43,7 +48,42 @@ export default function Dashboard() {
     <div className="max-w-6xl mx-auto p-6 space-y-6">
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Personal Investment & FI Dashboard</h1>
-        <div className="text-sm text-gray-600">Net Worth: {netWorth.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
+        {user ? (
+          <div className="flex items-center gap-3">
+            <div className="text-sm text-gray-600 hidden sm:block">{user?.email}</div>
+            <div className="text-sm text-gray-600">Net Worth: {netWorth.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
+            <Button variant="outline" onClick={signOut}>Sign out</Button>
+          </div>
+        ) : (
+          <form
+            className="flex items-center gap-2"
+            onSubmit={async (e) => {
+              e.preventDefault()
+              setStatus('sending')
+              setError('')
+              try {
+                await signInWithEmail(email)
+                setStatus('sent')
+              } catch (err) {
+                setError(err.message || 'Failed to send magic link')
+                setStatus('error')
+              }
+            }}
+          >
+            <div className="hidden sm:block text-sm text-gray-600">Sync: sign in</div>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              className="w-48 sm:w-64 rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900"
+            />
+            <Button type="submit" disabled={status === 'sending'}>Send link</Button>
+            {status === 'sent' && <div className="text-xs text-green-700">Check your email</div>}
+            {error && <div className="text-xs text-red-600 max-w-[12rem] truncate" title={error}>{error}</div>}
+          </form>
+        )}
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

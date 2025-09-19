@@ -35,9 +35,9 @@ A comprehensive React application for tracking personal finances, investment por
 - **Styling**: Tailwind CSS + shadcn/ui components
 - **Data Visualization**: Recharts
 - **State Management**: React Context API + Hooks
-- **Persistence**: localStorage (client-side only, no backend required)
+- **Persistence**: localStorage by default; optional Supabase for authentication + cloud sync
 - **Build Tool**: Vite
-- **Deployment**: GitHub Pages (ready to deploy)
+- **Deployment**: Netlify (recommended) or any static host. Auth/cloud-sync requires Supabase.
 
 ## Getting Started
 
@@ -118,6 +118,56 @@ npm run dev:server
 ## Data Persistence
 - This application uses browser `localStorage` for all app data (assets, assumptions, expenses, incomes, and history).
 - No authentication or database is required - all data stays in your browser.
+
+## Cloud Sync & Authentication (Supabase)
+Optional: enable sign-in via email magic link and persist your data in the cloud.
+
+1) Create a Supabase project
+- Go to https://supabase.com/ and create a free project.
+- Open "SQL Editor" and run the SQL in `supabase/schema.sql` to create the `pf_data` table and secure Row Level Security policies.
+
+2) Configure API keys
+- In Supabase: Settings → API. Copy the Project URL and the `anon` public key.
+- In this repo: copy `client/.env.example` to `client/.env` and set:
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_ANON_KEY`
+
+3) Configure Auth redirect
+- In Supabase: Authentication → URL Configuration:
+  - Set "Site URL" to your local dev URL during development (http://localhost:5173) and to your production domain after deploy (e.g., https://your-site.netlify.app).
+  - If you use additional domains, add them to "Additional Redirect URLs".
+- Ensure Email auth is enabled (Authentication → Providers → Email).
+
+4) Run locally
+```bash
+npm --prefix client install
+npm --prefix client run dev
+```
+
+When signed in, your data will sync to Supabase in the `pf_data` table keyed by your user id. When signed out, the app continues to use localStorage.
+
+## Deploy to Netlify (recommended)
+1) Push this repository to GitHub/GitLab/Bitbucket.
+
+2) In Netlify → New site from Git:
+- Base directory: `client`
+- Build command: `npm run build`
+- Publish directory: `dist`
+- Environment variables:
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_ANON_KEY`
+
+3) Redirects and SPA
+- The repo includes `client/public/_redirects` and `netlify.toml` for SPA fallback routing.
+
+4) Update Supabase Auth URLs
+- In Supabase Authentication settings, set Site URL to your Netlify domain (and add it to additional redirect URLs if needed) so magic-link emails redirect back to your site.
+
+After deployment, open your site, request a magic link on the login screen, and you’re in.
+
+## Costs
+- **Netlify**: Free tier covers static hosting and generous bandwidth; build minutes are limited but sufficient for small projects.
+- **Supabase**: Generous free tier suitable for hobby projects. You only use a single JSON row per user, protected via Row Level Security.
 
 ## Notes on Calculations
 - **Allocation proportion** = `asset_value / total_portfolio`
