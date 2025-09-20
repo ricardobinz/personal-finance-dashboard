@@ -15,7 +15,7 @@ import { calculateAllocation, projectScenarios, buildFIIncomeSeries, annualizeCo
 
 export default function Dashboard() {
   const { assets, assumptions, expenses, incomes, netWorth, history, snapshotNetWorth, undoLastSnapshot, setAssumptions } = useApp()
-  const { user, signOut, signInWithEmail } = useAuth()
+  const { user, signOut, signInWithEmail, signInWithGoogle } = useAuth()
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState('idle') // idle | sending | sent | error
   const [error, setError] = useState('')
@@ -55,34 +55,40 @@ export default function Dashboard() {
             <Button variant="outline" onClick={signOut}>Sign out</Button>
           </div>
         ) : (
-          <form
-            className="flex items-center gap-2"
-            onSubmit={async (e) => {
-              e.preventDefault()
-              setStatus('sending')
-              setError('')
-              try {
-                await signInWithEmail(email)
-                setStatus('sent')
-              } catch (err) {
-                setError(err.message || 'Failed to send magic link')
-                setStatus('error')
-              }
-            }}
-          >
-            <div className="hidden sm:block text-sm text-gray-600">Sync: sign in</div>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="w-48 sm:w-64 rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900"
-            />
-            <Button type="submit" disabled={status === 'sending'}>Send link</Button>
+          <div className="flex items-center gap-3">
+            <form
+              className="flex items-center gap-2"
+              onSubmit={async (e) => {
+                e.preventDefault()
+                setStatus('sending')
+                setError('')
+                try {
+                  await signInWithEmail(email)
+                  setStatus('sent')
+                } catch (err) {
+                  setError(err.message || 'Failed to send magic link')
+                  setStatus('error')
+                }
+              }}
+            >
+              <div className="hidden sm:block text-sm text-gray-600">Sync: sign in</div>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="w-48 sm:w-64 rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900"
+              />
+              <Button type="submit" disabled={status === 'sending'}>Send link</Button>
+            </form>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-500">or</span>
+              <Button onClick={() => signInWithGoogle()}>Continue with Google</Button>
+            </div>
             {status === 'sent' && <div className="text-xs text-green-700">Check your email</div>}
             {error && <div className="text-xs text-red-600 max-w-[12rem] truncate" title={error}>{error}</div>}
-          </form>
+          </div>
         )}
       </header>
 
