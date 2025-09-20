@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacy Policy</title>
+    <style>
+      body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif; line-height: 1.6; color: #111827; background: #F9FAFB; }
+      .container { max-width: 800px; margin: 2rem auto; padding: 1.5rem; background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; }
+      h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; }
+      h2 { font-size: 1.125rem; font-weight: 600; margin-top: 1.5rem; }
+      p, li { font-size: 0.95rem; color: #374151; }
+      code { background: #F3F4F6; padding: 0 0.25rem; border-radius: 0.25rem; }
+      a { color: #1f2937; text-decoration: underline; }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <h1>Privacy Policy</h1>
+      <p>
+        This application is designed with privacy by default. Your financial data stays on your device by default and can optionally be synced to your personal Supabase project when you sign in.
+      </p>
+
+      <h2>Controller</h2>
+      <p>
+        This is a personal, user-operated application. If you deploy or run this app yourself, you act as the data controller of your own data. For questions about the demo or this codebase, please replace the contact below with your own details.
+      </p>
+      <p>
+        Contact: <a href="mailto:ricardobinz@gmail.com">ricardobinz@gmail.com</a>
+      </p>
+
+      <h2>What data is processed</h2>
+      <ul>
+        <li>Portfolio data you enter (assets, values, targets).</li>
+        <li>Assumptions and projections.</li>
+        <li>Income and expense categories and amounts.</li>
+        <li>Historical snapshots you manually save.</li>
+        <li>Authentication identifiers provided by Supabase Auth (when you sign in).</li>
+      </ul>
+
+      <h2>How and where data is stored</h2>
+      <ul>
+        <li>
+          By default, data remains in your browser memory while you are signed out. When you sign in, a local cache may be written to <code>localStorage</code> to improve performance, and your data is synced to your Supabase project under a single JSON row keyed by your user ID.
+        </li>
+        <li>
+          Supabase stores data in the region you select for your project and protects rows with Row Level Security (RLS). The app uses only the public <code>anon</code> key and accesses only your own row.
+        </li>
+      </ul>
+
+      <h2>Legal basis and purposes</h2>
+      <ul>
+        <li>Performance of a contract or legitimate interest: providing the budgeting and dashboard functionality you request.</li>
+        <li>Consent: optional cloud sync and sign-in are initiated by you and can be revoked at any time by signing out.</li>
+      </ul>
+
+      <h2>Your rights (LGPD/GDPR)</h2>
+      <ul>
+        <li>Access and Portability: Export your data as JSON from the app header when signed in.</li>
+        <li>Deletion (Erasure): Use the Delete Data action in the app header to permanently remove your cloud-stored data. Local cache is also cleared.</li>
+        <li>Correction: Edit any data directly in the app forms.</li>
+        <li>Restriction/Objection: You can stop using cloud sync at any time by signing out.</li>
+      </ul>
+
+      <h2>Cookies and tokens</h2>
+      <ul>
+        <li>The app itself does not use tracking cookies or analytics.</li>
+        <li>Supabase Auth stores a session (token) in web storage to keep you signed in. You may sign out to clear it.</li>
+      </ul>
+
+      <h2>Data sharing</h2>
+      <p>
+        No third-party analytics are used. When using cloud sync, Supabase acts as a processor to store your data. Review Supabase's security and compliance documentation for details.
+      </p>
+
+      <h2>Security</h2>
+      <ul>
+        <li>All requests to Supabase use HTTPS.</li>
+        <li>Server responses include industry-standard security headers where applicable.</li>
+        <li>Row Level Security ensures only the authenticated user can access their data.</li>
+      </ul>
+
+      <h2>Retention</h2>
+      <p>
+        Data persists until you delete it or stop using the app. You control retention by using the Delete Data feature.
+      </p>
+
+      <h2>Changes</h2>
+      <p>
+        This policy may be updated. Significant changes will be reflected in the repository and release notes.
+      </p>
+    </main>
+  </body>
+</html>

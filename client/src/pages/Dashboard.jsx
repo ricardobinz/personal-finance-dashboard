@@ -14,7 +14,7 @@ import IncomesForm from '../components/forms/IncomesForm.jsx'
 import { calculateAllocation, projectScenarios, buildFIIncomeSeries, annualizeContribution, totalMonthlyExpenses, calcSavings } from '../utils/finance.js'
 
 export default function Dashboard() {
-  const { assets, assumptions, expenses, incomes, netWorth, history, snapshotNetWorth, undoLastSnapshot, setAssumptions } = useApp()
+  const { assets, assumptions, expenses, incomes, netWorth, history, snapshotNetWorth, undoLastSnapshot, setAssumptions, exportData, eraseRemoteData } = useApp()
   const { user, signOut, signInWithEmail, signInWithGoogle } = useAuth()
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState('idle') // idle | sending | sent | error
@@ -52,6 +52,22 @@ export default function Dashboard() {
           <div className="flex items-center gap-3">
             <div className="text-sm text-gray-600 hidden sm:block">{user?.email}</div>
             <div className="text-sm text-gray-600">Net Worth: {netWorth.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
+            <Button variant="outline" onClick={() => {
+              try {
+                exportData()
+              } catch (e) {
+                alert('Export failed')
+              }
+            }}>Export Data</Button>
+            <Button variant="outline" onClick={async () => {
+              if (!window.confirm('Delete your cloud data permanently? This action cannot be undone.')) return
+              try {
+                await eraseRemoteData()
+                alert('Your data has been deleted.')
+              } catch (e) {
+                alert('Delete failed')
+              }
+            }}>Delete Data</Button>
             <Button variant="outline" onClick={signOut}>Sign out</Button>
           </div>
         ) : (
@@ -200,7 +216,12 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      <footer className="text-xs text-gray-500">MVP • Local storage only • No authentication</footer>
+      <footer className="text-xs text-gray-500">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div>Privacy-focused • Your data is stored in your Supabase account with RLS.</div>
+          <a href="/privacy.html" className="underline text-gray-700">Privacy Policy</a>
+        </div>
+      </footer>
     </div>
   )
 }

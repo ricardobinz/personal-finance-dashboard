@@ -116,8 +116,9 @@ npm run dev:server
 ```
 
 ## Data Persistence
-- This application uses browser `localStorage` for all app data (assets, assumptions, expenses, incomes, and history).
-- No authentication or database is required - all data stays in your browser.
+- By default (signed out), data is kept in-memory only while the page is open.
+- When you sign in, a local cache may be written to browser `localStorage` to improve UX.
+- When signed in, your data is also synced to your own Supabase project (see Cloud Sync below).
 
 ## Cloud Sync & Authentication (Supabase)
 Optional: enable sign-in via email magic link and persist your data in the cloud.
@@ -146,6 +147,14 @@ npm --prefix client run dev
 
 When signed in, your data will sync to Supabase in the `pf_data` table keyed by your user id. When signed out, the app continues to use localStorage.
 
+### Data Subject Rights (LGPD/GDPR)
+- Export (Portability): Use the "Export Data" button in the app header (available when signed in) to download all your data as JSON.
+- Deletion (Erasure): Use the "Delete Data" button in the app header to permanently delete your cloud-stored data in Supabase. The local cache is also cleared.
+- Correction: Edit any data directly in the UI forms and it will sync to Supabase.
+- Access/Confirmation of Processing: Your signed-in dashboard displays your data and you can export it at any time.
+
+See `client/public/privacy.html` for the Privacy Policy. Update contact details and any organization-specific information before production use.
+
 ## Deploy to Netlify (recommended)
 1) Push this repository to GitHub/GitLab/Bitbucket.
 
@@ -164,6 +173,13 @@ When signed in, your data will sync to Supabase in the `pf_data` table keyed by 
 - In Supabase Authentication settings, set Site URL to your Netlify domain (and add it to additional redirect URLs if needed) so magic-link emails redirect back to your site.
 
 After deployment, open your site, request a magic link on the login screen, and you’re in.
+
+## Security & Compliance
+- Server: Express is configured with `helmet` to send secure default headers and with `x-powered-by` disabled. See `server/index.js`.
+- Database: Supabase Row Level Security policies (see `supabase/schema.sql`) ensure users can only read/write their own row.
+- Secrets: Only the public `anon` API key is used in the client. Never expose the `service_role` key in client-side code.
+- Cookies/Tracking: The app does not include analytics or tracking cookies by default.
+- Cross-border data transfer: Supabase stores data in the region you select. Choose a region appropriate for your users and document this in your Privacy Policy.
 
 ## Costs
 - **Netlify**: Free tier covers static hosting and generous bandwidth; build minutes are limited but sufficient for small projects.

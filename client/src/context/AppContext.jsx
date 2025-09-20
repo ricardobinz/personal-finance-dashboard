@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useMemo, useRef, useState 
 import { getJSON, setJSON } from '../utils/storage.js'
 import { sumAssetsValue } from '../utils/finance.js'
 import { useAuth } from './AuthContext.jsx'
-import { loadUserData, saveUserData } from '../utils/cloudSync.js'
+import { loadUserData, saveUserData, deleteUserData } from '../utils/cloudSync.js'
 
 const STORAGE_KEYS = {
   assets: 'pf_assets',
@@ -146,6 +146,50 @@ export function AppProvider({ children }) {
     setHistory((prev) => (prev && prev.length ? prev.slice(0, -1) : prev))
   }
 
+  // LGPD: Data portability
+  const exportData = () => {
+    const payload = { assets, assumptions, expenses, incomes, history }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'personal-finances-data.json'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  // LGPD: Right to erasure (delete stored cloud data and clear local cache/state)
+  const eraseRemoteData = async () => {
+    if (!user) return false
+    await deleteUserData(user.id)
+    // Temporarily disable cloud save to cancel any pending timers and avoid immediate re-save
+    setHydratedFromCloud(false)
+    // Reset local state and cache
+    setAssets(defaultAssets)
+    setAssumptions(defaultAssumptions)
+    setExpenses(defaultExpenses)
+    setIncomes(defaultIncomes)
+    setHistory(defaultHistory)
+    try {
+      localStorage.removeItem(STORAGE_KEYS.assets)
+      localStorage.removeItem(STORAGE_KEYS.assumptions)
+      localStorage.removeItem(STORAGE_KEYS.expenses)
+      localStorage.removeItem(STORAGE_KEYS.incomes)
+      localStorage.removeItem(STORAGE_KEYS.history)
+    } catch (e) {}
+    // Prevent immediate re-save by marking defaults as last saved
+    lastSavedRef.current = JSON.stringify({
+      assets: defaultAssets,
+      assumptions: defaultAssumptions,
+      expenses: defaultExpenses,
+      incomes: defaultIncomes,
+      history: defaultHistory,
+    })
+    // Re-enable cloud saves now that state and lastSavedRef are aligned with defaults
+    setHydratedFromCloud(true)
+    return true
+  }
+
   // Asset actions
   const addAsset = (asset) => {
     setAssets((prev) => [...prev, { id: crypto.randomUUID(), name: '', value: 0, targetPercent: 0, ...asset }])
@@ -175,6 +219,8 @@ export function AppProvider({ children }) {
     snapshotNetWorth,
     undoLastSnapshot,
     setHistory,
+    exportData,
+    eraseRemoteData,
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

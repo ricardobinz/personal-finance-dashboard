@@ -30,3 +30,13 @@ export async function saveUserData(userId, payload) {
   if (error) throw error
   return true
 }
+
+export async function deleteUserData(userId) {
+  const { error } = await supabase
+    .from(TABLE)
+    .delete()
+    .eq('user_id', userId)
+
+  if (error) throw error
+  return true
+}
