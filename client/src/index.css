@@ -28,6 +28,6 @@ body {
   }
 
   .container-page {
-    @apply max-w-6xl mx-auto p-6;
+    @apply max-w-6xl mx-auto p-4 sm:p-6;
   }
 }

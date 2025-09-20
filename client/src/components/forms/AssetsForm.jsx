@@ -33,20 +33,20 @@ export default function AssetsForm() {
 
   return (
     <div className="space-y-4">
-      <form onSubmit={handleAdd} className="grid grid-cols-12 gap-2 items-end">
-        <div className="col-span-4">
+      <form onSubmit={handleAdd} className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-end">
+        <div className="sm:col-span-4">
           <label className="block text-sm mb-1">{t('forms.assets.asset_label')}</label>
           <input className="w-full border rounded-md px-3 py-2" value={newAsset.name} onChange={(e) => setNewAsset((s) => ({ ...s, name: e.target.value }))} placeholder={t('forms.assets.asset_placeholder')} />
         </div>
-        <div className="col-span-4">
+        <div className="sm:col-span-4">
           <label className="block text-sm mb-1">{t('forms.assets.value_label')}</label>
           <input type="number" className="w-full border rounded-md px-3 py-2" value={newAsset.value} onChange={(e) => setNewAsset((s) => ({ ...s, value: e.target.value }))} />
         </div>
-        <div className="col-span-3">
+        <div className="sm:col-span-3">
           <label className="block text-sm mb-1">{t('forms.assets.target_label')}</label>
           <input type="number" className="w-full border rounded-md px-3 py-2" value={newAsset.targetPercent} onChange={(e) => setNewAsset((s) => ({ ...s, targetPercent: e.target.value }))} />
         </div>
-        <div className="col-span-1">
+        <div className="sm:col-span-1">
           <Button type="submit" className="w-full">{t('forms.assets.add')}</Button>
         </div>
       </form>
