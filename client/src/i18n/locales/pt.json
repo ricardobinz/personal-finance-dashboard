@@ -1,0 +1,80 @@
+{
+  "app": {
+    "title": "Painel de Investimentos e IF"
+  },
+  "stats": {
+    "net_worth": "Patrimônio",
+    "annual_contribution": "Contribuição Anual",
+    "years_to_fi": "Anos para Independência Financeira",
+    "savings_rate": "Taxa de Poupança"
+  },
+  "cards": {
+    "portfolio_allocation": "Alocação da Carteira",
+    "wealth_projection": "Projeção de Patrimônio",
+    "fi_progress": "Progresso de Independência Financeira (Regra dos 4%)",
+    "net_worth_history": "Histórico do Patrimônio",
+    "assumptions": "Premissas e Contribuições",
+    "expenses": "Despesas",
+    "incomes": "Fontes de Renda",
+    "income_savings": "Renda e Poupança"
+  },
+  "actions": {
+    "undo_last": "Desfazer último",
+    "save_snapshot": "Salvar registro",
+    "export_data": "Exportar Dados",
+    "delete_data": "Excluir Dados",
+    "sign_out": "Sair",
+    "send_link": "Enviar link",
+    "continue_google": "Continuar com Google",
+    "set_contribution_to_monthly_savings": "Definir contribuição para a poupança mensal",
+    "remove": "Remover"
+  },
+  "forms": {
+    "assets": {
+      "title": "Ativos",
+      "asset": "Ativo",
+      "value": "Valor",
+      "target_percent": "% Alvo",
+      "current_percent": "% Atual",
+      "gap": "Diferença",
+      "add": "Adicionar",
+      "asset_label": "Ativo",
+      "value_label": "Valor Atual (R$)",
+      "target_label": "% Alvo",
+      "asset_placeholder": "ex.: VTI"
+    }
+  },
+  "labels": {
+    "annual_contribution": "Contribuição Anual"
+  },
+  "footer": {
+    "privacy_policy": "Política de Privacidade"
+  },
+  "auth": {
+    "sync_sign_in": "Sincronizar: entrar",
+    "email_placeholder": "voce@exemplo.com",
+    "or": "ou",
+    "check_email": "Verifique seu e-mail"
+  },
+  "lang": {
+    "en": "English",
+    "pt": "Português"
+  },
+  "portfolio": {
+    "what_to_buy_next": "O que comprar a seguir",
+    "on_target": "No alvo",
+    "under_target": "abaixo da meta"
+  },
+  "confirm": {
+    "delete_permanently": "Excluir seus dados na nuvem permanentemente? Esta ação não pode ser desfeita."
+  },
+  "summary": {
+    "total": "Total"
+  },
+  "income": {
+    "monthly_income": "Renda Mensal",
+    "monthly_expenses": "Despesas Mensais",
+    "monthly_savings": "Poupança Mensal",
+    "savings_rate": "Taxa de Poupança"
+  }
+}

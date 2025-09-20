@@ -1,0 +1,80 @@
+{
+  "app": {
+    "title": "Personal Investment & FI Dashboard"
+  },
+  "stats": {
+    "net_worth": "Net Worth",
+    "annual_contribution": "Annual Contribution",
+    "years_to_fi": "Years to FI (4%)",
+    "savings_rate": "Savings Rate"
+  },
+  "cards": {
+    "portfolio_allocation": "Portfolio Allocation",
+    "wealth_projection": "Wealth Projection",
+    "fi_progress": "Financial Independence Progress (4% Rule)",
+    "net_worth_history": "Net Worth History",
+    "assumptions": "Assumptions & Contributions",
+    "expenses": "Expenses",
+    "incomes": "Income Streams",
+    "income_savings": "Income & Savings"
+  },
+  "actions": {
+    "undo_last": "Undo last",
+    "save_snapshot": "Save snapshot",
+    "export_data": "Export Data",
+    "delete_data": "Delete Data",
+    "remove": "Remove",
+    "set_contribution_to_monthly_savings": "Set contribution to monthly savings",
+    "sign_out": "Sign out",
+    "send_link": "Send link",
+    "continue_google": "Continue with Google"
+  },
+  "portfolio": {
+    "what_to_buy_next": "What to buy next",
+    "on_target": "On target",
+    "under_target": "under target"
+  },
+  "forms": {
+    "assets": {
+      "title": "Assets",
+      "asset": "Asset",
+      "value": "Value",
+      "target_percent": "Target %",
+      "current_percent": "Current %",
+      "gap": "Gap",
+      "add": "Add",
+      "asset_label": "Asset",
+      "value_label": "Current Value ($)",
+      "target_label": "Target %",
+      "asset_placeholder": "e.g., VTI"
+    }
+  },
+  "labels": {
+    "annual_contribution": "Annual Contribution"
+  },
+  "footer": {
+    "privacy_policy": "Privacy Policy"
+  },
+  "auth": {
+    "sync_sign_in": "Sync: sign in",
+    "email_placeholder": "you@example.com",
+    "or": "or",
+    "check_email": "Check your email"
+  },
+  "confirm": {
+    "delete_permanently": "Delete your cloud data permanently? This action cannot be undone."
+  },
+  "lang": {
+    "en": "English",
+    "pt": "Português"
+  },
+  "income": {
+    "monthly_income": "Monthly Income",
+    "monthly_expenses": "Monthly Expenses",
+    "monthly_savings": "Monthly Savings",
+    "savings_rate": "Savings Rate"
+  },
+  "summary": {
+    "total": "Total"
+  }
+}

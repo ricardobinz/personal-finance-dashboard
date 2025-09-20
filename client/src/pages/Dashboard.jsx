@@ -12,10 +12,12 @@ import AssumptionsForm from '../components/forms/AssumptionsForm.jsx'
 import ExpensesForm from '../components/forms/ExpensesForm.jsx'
 import IncomesForm from '../components/forms/IncomesForm.jsx'
 import { calculateAllocation, projectScenarios, buildFIIncomeSeries, annualizeContribution, totalMonthlyExpenses, calcSavings, yearsToFI } from '../utils/finance.js'
+import { useI18n } from '../i18n/i18n.jsx'
 
 export default function Dashboard() {
   const { assets, assumptions, expenses, incomes, netWorth, history, snapshotNetWorth, undoLastSnapshot, setAssumptions, exportData, eraseRemoteData } = useApp()
   const { user, signOut, signInWithEmail, signInWithGoogle } = useAuth()
+  const { t, locale, setLocale } = useI18n()
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState('idle') // idle | sending | sent | error
   const [error, setError] = useState('')
@@ -50,12 +52,20 @@ export default function Dashboard() {
   return (
     <div className="container-page space-y-6">
       <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Personal Investment & FI Dashboard</h1>
+        <h1 className="text-2xl font-bold">{t('app.title')}</h1>
         {user ? (
           <div className="flex items-center gap-3">
             <div className="text-sm text-gray-600 hidden sm:block">{user?.email}</div>
-            <div className="text-sm text-gray-600">Net Worth: {netWorth.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
-            <Button variant="outline" onClick={signOut}>Sign out</Button>
+            <Button
+              variant="outline"
+              size="sm"
+              aria-label={locale === 'en' ? t('lang.pt') : t('lang.en')}
+              title={locale === 'en' ? t('lang.pt') : t('lang.en')}
+              onClick={() => setLocale(locale === 'en' ? 'pt' : 'en')}
+            >
+              {locale?.toUpperCase?.()}
+            </Button>
+            <Button variant="outline" onClick={signOut}>{t('actions.sign_out')}</Button>
           </div>
         ) : (
           <div className="flex items-center gap-3">
@@ -74,23 +84,32 @@ export default function Dashboard() {
                 }
               }}
             >
-              <div className="hidden sm:block text-sm text-gray-600">Sync: sign in</div>
+              <div className="hidden sm:block text-sm text-gray-600">{t('auth.sync_sign_in')}</div>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder={t('auth.email_placeholder')}
                 className="w-48 sm:w-64 rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900"
               />
-              <Button type="submit" disabled={status === 'sending'}>Send link</Button>
+              <Button type="submit" disabled={status === 'sending'}>{t('actions.send_link')}</Button>
             </form>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500">or</span>
-              <Button variant="secondary" onClick={() => signInWithGoogle()}>Continue with Google</Button>
+              <span className="text-xs text-gray-500">{t('auth.or')}</span>
+              <Button variant="secondary" onClick={() => signInWithGoogle()}>{t('actions.continue_google')}</Button>
             </div>
-            {status === 'sent' && <div className="text-xs text-green-700">Check your email</div>}
+            {status === 'sent' && <div className="text-xs text-green-700">{t('auth.check_email')}</div>}
             {error && <div className="text-xs text-red-600 max-w-[12rem] truncate" title={error}>{error}</div>}
+            <Button
+              variant="outline"
+              size="sm"
+              aria-label={locale === 'en' ? t('lang.pt') : t('lang.en')}
+              title={locale === 'en' ? t('lang.pt') : t('lang.en')}
+              onClick={() => setLocale(locale === 'en' ? 'pt' : 'en')}
+            >
+              {locale?.toUpperCase?.()}
+            </Button>
           </div>
         )}
       </header>
@@ -99,25 +118,25 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent>
-            <div className="text-xs text-gray-600">Net Worth</div>
+            <div className="text-xs text-gray-600">{t('stats.net_worth')}</div>
             <div className="mt-1 text-2xl font-semibold">{netWorth.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent>
-            <div className="text-xs text-gray-600">Annual Contribution</div>
+            <div className="text-xs text-gray-600">{t('stats.annual_contribution')}</div>
             <div className="mt-1 text-2xl font-semibold">{annualContribution.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent>
-            <div className="text-xs text-gray-600">Years to FI (4%)</div>
+            <div className="text-xs text-gray-600">{t('stats.years_to_fi')}</div>
             <div className="mt-1 text-2xl font-semibold">{yearsToFi != null ? yearsToFi : '—'}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent>
-            <div className="text-xs text-gray-600">Savings Rate</div>
+            <div className="text-xs text-gray-600">{t('stats.savings_rate')}</div>
             <div className="mt-1 text-2xl font-semibold">{savings.savingsRate != null ? `${(savings.savingsRate * 100).toFixed(1)}%` : '—'}</div>
           </CardContent>
         </Card>
@@ -126,27 +145,26 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Portfolio Allocation</CardTitle>
+            <CardTitle>{t('cards.portfolio_allocation')}</CardTitle>
           </CardHeader>
           <CardContent>
             <PortfolioPieChart data={pieData} />
-            <div className="text-sm text-gray-700">What to buy next: {allocation.toBuy ? `${allocation.toBuy.name} (${(allocation.toBuy.gap * 100).toFixed(1)}% under target)` : 'On target'}</div>
+            <div className="text-sm text-gray-700">{t('portfolio.what_to_buy_next')}: {allocation.toBuy ? `${allocation.toBuy.name} (${(allocation.toBuy.gap * 100).toFixed(1)}% ${t('portfolio.under_target')})` : t('portfolio.on_target')}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Wealth Projection</CardTitle>
+            <CardTitle>{t('cards.wealth_projection')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm text-gray-600 mb-2">Annual Contribution: {annualContribution.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
             <WealthProjectionChart scenarios={scenarios} />
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Financial Independence Progress (4% Rule)</CardTitle>
+            <CardTitle>{t('cards.fi_progress')}</CardTitle>
           </CardHeader>
           <CardContent>
             <FIProgressChart data={fiData} />
@@ -155,10 +173,10 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader className="flex items-center justify-between">
-            <CardTitle>Net Worth History</CardTitle>
+            <CardTitle>{t('cards.net_worth_history')}</CardTitle>
             <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={undoLastSnapshot}>Undo last</Button>
-              <Button onClick={snapshotNetWorth}>Save snapshot</Button>
+              <Button variant="outline" onClick={undoLastSnapshot}>{t('actions.undo_last')}</Button>
+              <Button onClick={snapshotNetWorth}>{t('actions.save_snapshot')}</Button>
             </div>
           </CardHeader>
           <CardContent>
@@ -170,7 +188,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Assets</CardTitle>
+            <CardTitle>{t('forms.assets.title')}</CardTitle>
           </CardHeader>
           <CardContent>
             <AssetsForm />
@@ -179,7 +197,7 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Assumptions & Contributions</CardTitle>
+            <CardTitle>{t('cards.assumptions')}</CardTitle>
           </CardHeader>
           <CardContent>
             <AssumptionsForm />
@@ -188,7 +206,7 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Expenses</CardTitle>
+            <CardTitle>{t('cards.expenses')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ExpensesForm />
@@ -197,7 +215,7 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Income Streams</CardTitle>
+            <CardTitle>{t('cards.incomes')}</CardTitle>
           </CardHeader>
           <CardContent>
             <IncomesForm />
@@ -206,17 +224,17 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Income & Savings</CardTitle>
+            <CardTitle>{t('cards.income_savings')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-sm grid grid-cols-2 gap-2">
-              <div className="text-gray-600">Monthly Income</div>
+              <div className="text-gray-600">{t('income.monthly_income')}</div>
               <div className="text-right">{savings.monthlyIncome.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
-              <div className="text-gray-600">Monthly Expenses</div>
+              <div className="text-gray-600">{t('income.monthly_expenses')}</div>
               <div className="text-right">{savings.monthlyExpenses.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
-              <div className="text-gray-600">Monthly Savings</div>
+              <div className="text-gray-600">{t('income.monthly_savings')}</div>
               <div className={`text-right ${savings.monthlySavings >= 0 ? 'text-green-600' : 'text-red-600'}`}>{savings.monthlySavings.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
-              <div className="text-gray-600">Savings Rate</div>
+              <div className="text-gray-600">{t('income.savings_rate')}</div>
               <div className="text-right">{savings.savingsRate != null ? `${(savings.savingsRate * 100).toFixed(1)}%` : '—'}</div>
             </div>
             <div className="mt-3">
@@ -224,7 +242,7 @@ export default function Dashboard() {
                 disabled={savings.monthlySavings <= 0}
                 onClick={() => setAssumptions((prev) => ({ ...prev, contributionAmount: Math.max(0, Math.round(savings.monthlySavings)), contributionFrequency: 'monthly' }))}
               >
-                Set contribution to monthly savings
+                {t('actions.set_contribution_to_monthly_savings')}
               </Button>
             </div>
           </CardContent>
@@ -261,14 +279,14 @@ export default function Dashboard() {
                   }}
                   className="text-gray-600"
                 >
-                  Export Data
+                  {t('actions.export_data')}
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   className="text-gray-600 border-gray-200 hover:bg-red-50 hover:text-red-700"
                   onClick={async () => {
-                    if (!window.confirm('Delete your cloud data permanently? This action cannot be undone.')) return
+                    if (!window.confirm(t('confirm.delete_permanently'))) return
                     try {
                       await eraseRemoteData()
                       alert('Your data has been deleted.')
@@ -277,11 +295,11 @@ export default function Dashboard() {
                     }
                   }}
                 >
-                  Delete Data
+                  {t('actions.delete_data')}
                 </Button>
               </>
             )}
-            <a href="/privacy.html" className="underline text-gray-700">Privacy Policy</a>
+            <a href="/privacy.html" className="underline text-gray-700">{t('footer.privacy_policy')}</a>
           </div>
         </div>
       </footer>
