@@ -11,7 +11,7 @@ import AssetsForm from '../components/forms/AssetsForm.jsx'
 import AssumptionsForm from '../components/forms/AssumptionsForm.jsx'
 import ExpensesForm from '../components/forms/ExpensesForm.jsx'
 import IncomesForm from '../components/forms/IncomesForm.jsx'
-import { calculateAllocation, projectScenarios, buildFIIncomeSeries, annualizeContribution, totalMonthlyExpenses, calcSavings } from '../utils/finance.js'
+import { calculateAllocation, projectScenarios, buildFIIncomeSeries, annualizeContribution, totalMonthlyExpenses, calcSavings, yearsToFI } from '../utils/finance.js'
 
 export default function Dashboard() {
   const { assets, assumptions, expenses, incomes, netWorth, history, snapshotNetWorth, undoLastSnapshot, setAssumptions, exportData, eraseRemoteData } = useApp()
@@ -32,11 +32,12 @@ export default function Dashboard() {
     optimistic: assumptions.optimistic,
   }), [netWorth, assumptions])
 
+  const annualExpenses = useMemo(() => totalMonthlyExpenses(expenses) * 12, [expenses])
+
   const fiData = useMemo(() => {
-    const annualExpenses = totalMonthlyExpenses(expenses) * 12
     const realistic = scenarios.realistic || []
     return buildFIIncomeSeries(realistic, [0.035, 0.04, 0.045], annualExpenses)
-  }, [scenarios, expenses])
+  }, [scenarios, annualExpenses])
 
   const pieData = useMemo(() => assets.map((a) => ({ name: a.name || 'Unnamed', value: Number(a.value) || 0 })), [assets])
 
@@ -44,30 +45,16 @@ export default function Dashboard() {
 
   const savings = useMemo(() => calcSavings(incomes, expenses), [incomes, expenses])
 
+  const yearsToFi = useMemo(() => yearsToFI({ projection: scenarios.realistic || [], annualExpenses }), [scenarios, annualExpenses])
+
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="container-page space-y-6">
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Personal Investment & FI Dashboard</h1>
         {user ? (
           <div className="flex items-center gap-3">
             <div className="text-sm text-gray-600 hidden sm:block">{user?.email}</div>
             <div className="text-sm text-gray-600">Net Worth: {netWorth.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
-            <Button variant="outline" onClick={() => {
-              try {
-                exportData()
-              } catch (e) {
-                alert('Export failed')
-              }
-            }}>Export Data</Button>
-            <Button variant="outline" onClick={async () => {
-              if (!window.confirm('Delete your cloud data permanently? This action cannot be undone.')) return
-              try {
-                await eraseRemoteData()
-                alert('Your data has been deleted.')
-              } catch (e) {
-                alert('Delete failed')
-              }
-            }}>Delete Data</Button>
             <Button variant="outline" onClick={signOut}>Sign out</Button>
           </div>
         ) : (
@@ -100,13 +87,41 @@ export default function Dashboard() {
             </form>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500">or</span>
-              <Button onClick={() => signInWithGoogle()}>Continue with Google</Button>
+              <Button variant="secondary" onClick={() => signInWithGoogle()}>Continue with Google</Button>
             </div>
             {status === 'sent' && <div className="text-xs text-green-700">Check your email</div>}
             {error && <div className="text-xs text-red-600 max-w-[12rem] truncate" title={error}>{error}</div>}
           </div>
         )}
       </header>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent>
+            <div className="text-xs text-gray-600">Net Worth</div>
+            <div className="mt-1 text-2xl font-semibold">{netWorth.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent>
+            <div className="text-xs text-gray-600">Annual Contribution</div>
+            <div className="mt-1 text-2xl font-semibold">{annualContribution.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent>
+            <div className="text-xs text-gray-600">Years to FI (4%)</div>
+            <div className="mt-1 text-2xl font-semibold">{yearsToFi != null ? yearsToFi : '—'}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent>
+            <div className="text-xs text-gray-600">Savings Rate</div>
+            <div className="mt-1 text-2xl font-semibold">{savings.savingsRate != null ? `${(savings.savingsRate * 100).toFixed(1)}%` : '—'}</div>
+          </CardContent>
+        </Card>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
@@ -217,9 +232,57 @@ export default function Dashboard() {
       </div>
 
       <footer className="text-xs text-gray-500">
-        <div className="flex items-center justify-between gap-2 flex-wrap">
-          <div>Privacy-focused • Your data is stored in your Supabase account with RLS.</div>
-          <a href="/privacy.html" className="underline text-gray-700">Privacy Policy</a>
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          {/* Social links */}
+          <div className="flex items-center gap-3">
+            <a href="https://www.linkedin.com/in/ricardobinz/" target="_blank" rel="noreferrer noopener" aria-label="LinkedIn" className="text-gray-600 hover:text-gray-900">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM0 8h5v16H0V8zm7.5 0h4.8v2.2h.07c.67-1.2 2.3-2.47 4.74-2.47 5.07 0 6 3.34 6 7.7V24h-5v-7.5c0-1.8-.03-4.12-2.5-4.12-2.5 0-2.88 1.95-2.88 3.98V24h-5V8z"/></svg>
+            </a>
+            <a href="https://ricardobinz.github.io/personal_website/index.html" target="_blank" rel="noreferrer noopener" aria-label="Website" className="text-gray-600 hover:text-gray-900">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm7.93 9h-3.17c-.15-2.33-.98-4.37-2.18-5.9A8.03 8.03 0 0 1 19.93 11zM12 4.07c1.62 1.7 2.7 4.27 2.93 6.93H9.07C9.3 8.34 10.38 5.77 12 4.07zM4.07 13h3.17c.15 2.33.98 4.37 2.18 5.9A8.03 8.03 0 0 1 4.07 13zM8.1 13h7.8c-.25 2.39-1.2 4.66-2.73 6.12-.42.4-.89.74-1.37 1.02-.48-.28-.95-.62-1.37-1.02A9.93 9.93 0 0 1 8.1 13zM14.83 5.1c1.2 1.53 2.03 3.57 2.18 5.9h-3.98c.23-2.66 1.31-5.23 2.93-6.93zM12 19.93c-1.62-1.7-2.7-4.27-2.93-6.93h5.86c-.23 2.66-1.31 5.23-2.93 6.93zM11.24 5.1c-1.2 1.53-2.03 3.57-2.18 5.9H5.09c.23-2.66 1.31-5.23 2.93-6.93 1.48-.97 3.41-.97 4.89 0z"/></svg>
+            </a>
+            <a href="https://github.com/ricardobinz/" target="_blank" rel="noreferrer noopener" aria-label="GitHub" className="text-gray-600 hover:text-gray-900">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path fillRule="evenodd" d="M12 2C6.48 2 2 6.58 2 12.26c0 4.51 2.87 8.32 6.86 9.67.5.09.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.79.62-3.38-1.37-3.38-1.37-.45-1.18-1.11-1.49-1.11-1.49-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.57 2.34 1.12 2.91.86.09-.66.35-1.12.64-1.38-2.23-.26-4.58-1.15-4.58-5.13 0-1.13.39-2.06 1.03-2.79-.1-.26-.45-1.31.1-2.72 0 0 .84-.28 2.75 1.06A9.3 9.3 0 0 1 12 7.07c.85 0 1.71.12 2.51.34 1.9-1.34 2.74-1.06 2.74-1.06.55 1.41.2 2.46.1 2.72.64.73 1.03 1.66 1.03 2.79 0 3.99-2.36 4.86-4.61 5.12.36.32.69.95.69 1.92 0 1.39-.01 2.51-.01 2.85 0 .27.18.58.69.48 3.98-1.35 6.85-5.16 6.85-9.67C22 6.58 17.52 2 12 2Z" clipRule="evenodd"/></svg>
+            </a>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {user && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    try {
+                      exportData()
+                    } catch (e) {
+                      alert('Export failed')
+                    }
+                  }}
+                  className="text-gray-600"
+                >
+                  Export Data
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-gray-600 border-gray-200 hover:bg-red-50 hover:text-red-700"
+                  onClick={async () => {
+                    if (!window.confirm('Delete your cloud data permanently? This action cannot be undone.')) return
+                    try {
+                      await eraseRemoteData()
+                      alert('Your data has been deleted.')
+                    } catch (e) {
+                      alert('Delete failed')
+                    }
+                  }}
+                >
+                  Delete Data
+                </Button>
+              </>
+            )}
+            <a href="/privacy.html" className="underline text-gray-700">Privacy Policy</a>
+          </div>
         </div>
       </footer>
     </div>

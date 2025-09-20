@@ -11,7 +11,17 @@ export default function PortfolioPieChart({ data = [] }) {
     <div className="w-full h-72">
       <ResponsiveContainer>
         <PieChart>
-          <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} label={(d) => `${d.name} ${d.percent.toFixed(1)}%`}>
+          <Pie
+            data={chartData}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            innerRadius={60}
+            outerRadius={90}
+            labelLine={false}
+            label={(d) => `${d.name} ${d.percent.toFixed(1)}%`}
+          >
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}

@@ -2,7 +2,22 @@
 export default {
   content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: [
+          'Inter',
+          'ui-sans-serif',
+          'system-ui',
+          '-apple-system',
+          'Segoe UI',
+          'Roboto',
+          'Ubuntu',
+          'Cantarell',
+          'Noto Sans',
+          'sans-serif',
+        ],
+      },
+    },
   },
   plugins: [],
 }
