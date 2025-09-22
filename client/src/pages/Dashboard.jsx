@@ -21,6 +21,7 @@ export default function Dashboard() {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState('idle') // idle | sending | sent | error
   const [error, setError] = useState('')
+  const [activeTab, setActiveTab] = useState('inputs') // 'graphs' | 'inputs'
 
   const allocation = useMemo(() => calculateAllocation(assets), [assets])
 
@@ -142,112 +143,134 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('cards.portfolio_allocation')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <PortfolioPieChart data={pieData} />
-            <div className="text-sm text-gray-700">{t('portfolio.what_to_buy_next')}: {allocation.toBuy ? `${allocation.toBuy.name} (${(allocation.toBuy.gap * 100).toFixed(1)}% ${t('portfolio.under_target')})` : t('portfolio.on_target')}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('cards.wealth_projection')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <WealthProjectionChart scenarios={scenarios} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('cards.fi_progress')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <FIProgressChart data={fiData} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex items-center justify-between">
-            <CardTitle>{t('cards.net_worth_history')}</CardTitle>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={undoLastSnapshot}>{t('actions.undo_last')}</Button>
-              <Button onClick={snapshotNetWorth}>{t('actions.save_snapshot')}</Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <NetWorthHistoryChart history={history} />
-          </CardContent>
-        </Card>
+      {/* Tabs header */}
+      <div className="flex items-center gap-2">
+        <Button
+          variant={activeTab === 'inputs' ? 'primary' : 'outline'}
+          onClick={() => setActiveTab('inputs')}
+          aria-pressed={activeTab === 'inputs'}
+        >
+          {t('tabs.inputs')}
+        </Button>
+        <Button
+          variant={activeTab === 'graphs' ? 'primary' : 'outline'}
+          onClick={() => setActiveTab('graphs')}
+          aria-pressed={activeTab === 'graphs'}
+        >
+          {t('tabs.graphs')}
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('forms.assets.title')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <AssetsForm />
-          </CardContent>
-        </Card>
+      {activeTab === 'graphs' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('cards.portfolio_allocation')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PortfolioPieChart data={pieData} />
+              <div className="text-sm text-gray-700">{t('portfolio.what_to_buy_next')}: {allocation.toBuy ? `${allocation.toBuy.name} (${(allocation.toBuy.gap * 100).toFixed(1)}% ${t('portfolio.under_target')})` : t('portfolio.on_target')}</div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('cards.assumptions')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <AssumptionsForm />
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('cards.wealth_projection')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <WealthProjectionChart scenarios={scenarios} />
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('cards.expenses')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ExpensesForm />
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('cards.fi_progress')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FIProgressChart data={fiData} />
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('cards.incomes')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <IncomesForm />
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex items-center justify-between">
+              <CardTitle>{t('cards.net_worth_history')}</CardTitle>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" onClick={undoLastSnapshot}>{t('actions.undo_last')}</Button>
+                <Button onClick={snapshotNetWorth}>{t('actions.save_snapshot')}</Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <NetWorthHistoryChart history={history} />
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('cards.income_savings')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm grid grid-cols-2 gap-2">
-              <div className="text-gray-600">{t('income.monthly_income')}</div>
-              <div className="text-right">{savings.monthlyIncome.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
-              <div className="text-gray-600">{t('income.monthly_expenses')}</div>
-              <div className="text-right">{savings.monthlyExpenses.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
-              <div className="text-gray-600">{t('income.monthly_savings')}</div>
-              <div className={`text-right ${savings.monthlySavings >= 0 ? 'text-green-600' : 'text-red-600'}`}>{savings.monthlySavings.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
-              <div className="text-gray-600">{t('income.savings_rate')}</div>
-              <div className="text-right">{savings.savingsRate != null ? `${(savings.savingsRate * 100).toFixed(1)}%` : '—'}</div>
-            </div>
-            <div className="mt-3">
-              <Button
-                disabled={savings.monthlySavings <= 0}
-                onClick={() => setAssumptions((prev) => ({ ...prev, contributionAmount: Math.max(0, Math.round(savings.monthlySavings)), contributionFrequency: 'monthly' }))}
-              >
-                {t('actions.set_contribution_to_monthly_savings')}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {activeTab === 'inputs' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('forms.assets.title')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AssetsForm />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('cards.assumptions')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AssumptionsForm />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('cards.expenses')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ExpensesForm />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('cards.incomes')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <IncomesForm />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('cards.income_savings')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm grid grid-cols-2 gap-2">
+                <div className="text-gray-600">{t('income.monthly_income')}</div>
+                <div className="text-right">{savings.monthlyIncome.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
+                <div className="text-gray-600">{t('income.monthly_expenses')}</div>
+                <div className="text-right">{savings.monthlyExpenses.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
+                <div className={`text-gray-600`}>{t('income.monthly_savings')}</div>
+                <div className={`text-right ${savings.monthlySavings >= 0 ? 'text-green-600' : 'text-red-600'}`}>{savings.monthlySavings.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
+                <div className="text-gray-600">{t('income.savings_rate')}</div>
+                <div className="text-right">{savings.savingsRate != null ? `${(savings.savingsRate * 100).toFixed(1)}%` : '—'}</div>
+              </div>
+              <div className="mt-3">
+                <Button
+                  disabled={savings.monthlySavings <= 0}
+                  onClick={() => setAssumptions((prev) => ({ ...prev, contributionAmount: Math.max(0, Math.round(savings.monthlySavings)), contributionFrequency: 'monthly' }))}
+                >
+                  {t('actions.set_contribution_to_monthly_savings')}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <footer className="text-xs text-gray-500">
         <div className="flex items-center justify-between gap-4 flex-wrap">

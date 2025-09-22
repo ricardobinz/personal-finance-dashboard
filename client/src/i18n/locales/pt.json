@@ -76,5 +76,9 @@
     "monthly_expenses": "Despesas Mensais",
     "monthly_savings": "Poupança Mensal",
     "savings_rate": "Taxa de Poupança"
+  },
+  "tabs": {
+    "inputs": "Entradas",
+    "graphs": "Gráficos"
   }
 }

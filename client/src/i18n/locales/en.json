@@ -74,6 +74,10 @@
     "monthly_savings": "Monthly Savings",
     "savings_rate": "Savings Rate"
   },
+  "tabs": {
+    "inputs": "Inputs",
+    "graphs": "Graphs"
+  },
   "summary": {
     "total": "Total"
   }
