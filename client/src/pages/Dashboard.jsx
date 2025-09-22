@@ -11,6 +11,7 @@ import AssetsForm from '../components/forms/AssetsForm.jsx'
 import AssumptionsForm from '../components/forms/AssumptionsForm.jsx'
 import ExpensesForm from '../components/forms/ExpensesForm.jsx'
 import IncomesForm from '../components/forms/IncomesForm.jsx'
+import { Tooltip } from '../components/ui/tooltip.jsx'
 import { calculateAllocation, projectScenarios, buildFIIncomeSeries, annualizeContribution, totalMonthlyExpenses, calcSavings, yearsToFI } from '../utils/finance.js'
 import { useI18n } from '../i18n/i18n.jsx'
 
@@ -18,6 +19,7 @@ export default function Dashboard() {
   const { assets, assumptions, expenses, incomes, netWorth, history, snapshotNetWorth, undoLastSnapshot, setAssumptions, exportData, eraseRemoteData } = useApp()
   const { user, signOut, signInWithEmail, signInWithGoogle } = useAuth()
   const { t, locale, setLocale } = useI18n()
+  const currency = locale === 'pt' ? 'BRL' : 'USD'
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState('idle') // idle | sending | sent | error
   const [error, setError] = useState('')
@@ -120,13 +122,13 @@ export default function Dashboard() {
         <Card>
           <CardContent>
             <div className="text-xs text-gray-600">{t('stats.net_worth')}</div>
-            <div className="mt-1 text-2xl font-semibold">{netWorth.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
+            <div className="mt-1 text-2xl font-semibold">{netWorth.toLocaleString(undefined, { style: 'currency', currency })}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent>
             <div className="text-xs text-gray-600">{t('stats.annual_contribution')}</div>
-            <div className="mt-1 text-2xl font-semibold">{annualContribution.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
+            <div className="mt-1 text-2xl font-semibold">{annualContribution.toLocaleString(undefined, { style: 'currency', currency })}</div>
           </CardContent>
         </Card>
         <Card>
@@ -165,17 +167,35 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>{t('cards.portfolio_allocation')}</CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle>{t('cards.portfolio_allocation')}</CardTitle>
+                <Tooltip content={t('cards.portfolio_allocation_help') || t('cards.portfolio_allocation')}>
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 text-gray-700 text-xs">?</span>
+                </Tooltip>
+              </div>
             </CardHeader>
             <CardContent>
+              <div className={`mb-3 rounded-md border px-3 py-2 flex items-center gap-2 ${allocation.toBuy ? 'border-blue-200 bg-blue-50 text-blue-900' : 'border-green-200 bg-green-50 text-green-900'}`}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                  <path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm.75 15h-1.5v-6h1.5Zm0-8h-1.5V7h1.5Z" />
+                </svg>
+                <div className="font-medium">{t('portfolio.what_to_buy_next')}</div>
+                <div className="ml-auto font-semibold">
+                  {allocation.toBuy ? `${allocation.toBuy.name} (${(allocation.toBuy.gap * 100).toFixed(1)}% ${t('portfolio.under_target')})` : t('portfolio.on_target')}
+                </div>
+              </div>
               <PortfolioPieChart data={pieData} />
-              <div className="text-sm text-gray-700">{t('portfolio.what_to_buy_next')}: {allocation.toBuy ? `${allocation.toBuy.name} (${(allocation.toBuy.gap * 100).toFixed(1)}% ${t('portfolio.under_target')})` : t('portfolio.on_target')}</div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>{t('cards.wealth_projection')}</CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle>{t('cards.wealth_projection')}</CardTitle>
+                <Tooltip content={t('cards.wealth_projection_help') || t('cards.wealth_projection')}>
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 text-gray-700 text-xs">?</span>
+                </Tooltip>
+              </div>
             </CardHeader>
             <CardContent>
               <WealthProjectionChart scenarios={scenarios} />
@@ -184,7 +204,12 @@ export default function Dashboard() {
 
           <Card>
             <CardHeader>
-              <CardTitle>{t('cards.fi_progress')}</CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle>{t('cards.fi_progress')}</CardTitle>
+                <Tooltip content={t('cards.fi_progress_help') || t('cards.fi_progress')}>
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 text-gray-700 text-xs">?</span>
+                </Tooltip>
+              </div>
             </CardHeader>
             <CardContent>
               <FIProgressChart data={fiData} />
@@ -193,7 +218,12 @@ export default function Dashboard() {
 
           <Card>
             <CardHeader className="flex items-center justify-between">
-              <CardTitle>{t('cards.net_worth_history')}</CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle>{t('cards.net_worth_history')}</CardTitle>
+                <Tooltip content={t('cards.net_worth_history_help') || t('cards.net_worth_history')}>
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 text-gray-700 text-xs">?</span>
+                </Tooltip>
+              </div>
               <div className="flex items-center gap-2">
                 <Button variant="outline" onClick={undoLastSnapshot}>{t('actions.undo_last')}</Button>
                 <Button onClick={snapshotNetWorth}>{t('actions.save_snapshot')}</Button>
@@ -208,18 +238,37 @@ export default function Dashboard() {
 
       {activeTab === 'inputs' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
+          <Card className="md:col-span-2">
             <CardHeader>
-              <CardTitle>{t('forms.assets.title')}</CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle>{t('forms.assets.title')}</CardTitle>
+                <Tooltip content={t('forms.assets.help')}>
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 text-gray-700 text-xs">?</span>
+                </Tooltip>
+              </div>
             </CardHeader>
             <CardContent>
+              <div className={`mb-3 rounded-md border px-3 py-2 flex items-center gap-2 ${allocation.toBuy ? 'border-blue-200 bg-blue-50 text-blue-900' : 'border-green-200 bg-green-50 text-green-900'}`}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                  <path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm.75 15h-1.5v-6h1.5Zm0-8h-1.5V7h1.5Z" />
+                </svg>
+                <div className="font-medium">{t('portfolio.what_to_buy_next')}</div>
+                <div className="ml-auto font-semibold">
+                  {allocation.toBuy ? `${allocation.toBuy.name} (${(allocation.toBuy.gap * 100).toFixed(1)}% ${t('portfolio.under_target')})` : t('portfolio.on_target')}
+                </div>
+              </div>
               <AssetsForm />
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="md:col-span-2">
             <CardHeader>
-              <CardTitle>{t('cards.assumptions')}</CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle>{t('cards.assumptions')}</CardTitle>
+                <Tooltip content={t('forms.assumptions.help') || t('cards.assumptions')}>
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 text-gray-700 text-xs">?</span>
+                </Tooltip>
+              </div>
             </CardHeader>
             <CardContent>
               <AssumptionsForm />
@@ -228,16 +277,12 @@ export default function Dashboard() {
 
           <Card>
             <CardHeader>
-              <CardTitle>{t('cards.expenses')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ExpensesForm />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('cards.incomes')}</CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle>{t('cards.incomes')}</CardTitle>
+                <Tooltip content={t('forms.incomes.help') || t('cards.incomes')}>
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 text-gray-700 text-xs">?</span>
+                </Tooltip>
+              </div>
             </CardHeader>
             <CardContent>
               <IncomesForm />
@@ -246,16 +291,35 @@ export default function Dashboard() {
 
           <Card>
             <CardHeader>
-              <CardTitle>{t('cards.income_savings')}</CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle>{t('cards.expenses')}</CardTitle>
+                <Tooltip content={t('forms.expenses.help') || t('cards.expenses')}>
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 text-gray-700 text-xs">?</span>
+                </Tooltip>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <ExpensesForm />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <CardTitle>{t('cards.income_savings')}</CardTitle>
+                <Tooltip content={t('cards.income_savings_help') || t('cards.income_savings')}>
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 text-gray-700 text-xs">?</span>
+                </Tooltip>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-sm grid grid-cols-2 gap-2">
                 <div className="text-gray-600">{t('income.monthly_income')}</div>
-                <div className="text-right">{savings.monthlyIncome.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
+                <div className="text-right">{savings.monthlyIncome.toLocaleString(undefined, { style: 'currency', currency })}</div>
                 <div className="text-gray-600">{t('income.monthly_expenses')}</div>
-                <div className="text-right">{savings.monthlyExpenses.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
+                <div className="text-right">{savings.monthlyExpenses.toLocaleString(undefined, { style: 'currency', currency })}</div>
                 <div className={`text-gray-600`}>{t('income.monthly_savings')}</div>
-                <div className={`text-right ${savings.monthlySavings >= 0 ? 'text-green-600' : 'text-red-600'}`}>{savings.monthlySavings.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</div>
+                <div className={`text-right ${savings.monthlySavings >= 0 ? 'text-green-600' : 'text-red-600'}`}>{savings.monthlySavings.toLocaleString(undefined, { style: 'currency', currency })}</div>
                 <div className="text-gray-600">{t('income.savings_rate')}</div>
                 <div className="text-right">{savings.savingsRate != null ? `${(savings.savingsRate * 100).toFixed(1)}%` : '—'}</div>
               </div>

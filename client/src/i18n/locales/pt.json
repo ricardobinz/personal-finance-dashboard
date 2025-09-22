@@ -16,13 +16,19 @@
     "assumptions": "Premissas e Contribuições",
     "expenses": "Despesas",
     "incomes": "Fontes de Renda",
-    "income_savings": "Renda e Poupança"
+    "income_savings": "Renda e Poupança",
+    "income_savings_help": "Visão geral de renda, despesas, poupança e taxa de poupança.",
+    "portfolio_allocation_help": "Distribuição atual da carteira e o que comprar a seguir com base nas metas.",
+    "wealth_projection_help": "Projeção do patrimônio ao longo do tempo nos cenários pessimista, realista e otimista.",
+    "fi_progress_help": "Renda potencial de saque vs. despesas em 3,5%, 4% e 4,5%.",
+    "net_worth_history_help": "Seus registros salvos de patrimônio ao longo do tempo."
   },
   "actions": {
     "undo_last": "Desfazer último",
     "save_snapshot": "Salvar registro",
     "export_data": "Exportar Dados",
     "delete_data": "Excluir Dados",
+    "save": "Salvar",
     "sign_out": "Sair",
     "send_link": "Enviar link",
     "continue_google": "Continuar com Google",
@@ -30,6 +36,9 @@
     "remove": "Remover"
   },
   "forms": {
+    "common": {
+      "name": "Nome"
+    },
     "assets": {
       "title": "Ativos",
       "asset": "Ativo",
@@ -41,7 +50,52 @@
       "asset_label": "Ativo",
       "value_label": "Valor Atual (R$)",
       "target_label": "% Alvo",
-      "asset_placeholder": "ex.: VTI"
+      "asset_placeholder": "ex.: VTI",
+      "tooltips": {
+        "asset_name": "Nome do ativo (ex.: ticker do ETF ou categoria). Nomes longos são truncados; passe o mouse para ver completo.",
+        "value": "Valor de mercado atual deste ativo.",
+        "target_percent": "Percentual de alocação desejado (0-100).",
+        "current_percent": "Alocação atual deste ativo com base no total.",
+        "gap": "Meta menos atual. Positivo indica que está abaixo da meta."
+      },
+      "help": "Gerencie seus ativos. Informe o valor atual e a alocação alvo de cada item."
+    },
+    "expenses": {
+      "help": "Registre suas categorias de despesas mensais.",
+      "add_category": "Adicionar categoria",
+      "no_categories": "Nenhuma categoria ainda. Adicione sua primeira despesa.",
+      "amount_label": "Valor (R$/mês)",
+      "tooltips": {
+        "name": "Nome da categoria (ex.: Moradia, Alimentação).",
+        "amount": "Valor mensal desta categoria."
+      }
+    },
+    "incomes": {
+      "help": "Registre suas fontes de renda mensais.",
+      "add_stream": "Adicionar fonte",
+      "no_streams": "Nenhuma fonte de renda ainda. Adicione a primeira.",
+      "amount_label": "Valor (R$/mês)",
+      "tooltips": {
+        "name": "Nome da fonte de renda (ex.: Salário, Aluguel).",
+        "amount": "Valor mensal desta fonte."
+      }
+    },
+    "assumptions": {
+      "help": "Configure retornos, anos e contribuições.",
+      "pessimistic": "Pessimista %",
+      "realistic": "Realista %",
+      "optimistic": "Otimista %",
+      "years": "Anos",
+      "contribution_amount": "Valor da Contribuição",
+      "frequency": "Frequência",
+      "tooltips": {
+        "pessimistic": "Retorno anual do cenário pessimista (%).",
+        "realistic": "Retorno anual do cenário realista (%).",
+        "optimistic": "Retorno anual do cenário otimista (%).",
+        "years": "Horizonte de projeção (anos).",
+        "contribution_amount": "Valor recorrente da contribuição.",
+        "frequency": "Com que frequência a contribuição é feita."
+      }
     }
   },
   "labels": {
@@ -80,5 +134,24 @@
   "tabs": {
     "inputs": "Entradas",
     "graphs": "Gráficos"
+  },
+  "charts": {
+    "common": {
+      "year": "Ano"
+    },
+    "wealth": {
+      "pessimistic": "Pessimista",
+      "realistic": "Realista",
+      "optimistic": "Otimista"
+    },
+    "fi": {
+      "withdraw_35": "Taxa de saque em 3,5%",
+      "withdraw_40": "Taxa de saque em 4%",
+      "withdraw_45": "Taxa de saque em 4,5%",
+      "expenses": "Despesas"
+    },
+    "net_worth": {
+      "net_worth": "Patrimônio"
+    }
   }
 }

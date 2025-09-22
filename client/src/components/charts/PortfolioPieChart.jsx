@@ -1,11 +1,15 @@
 import React from 'react'
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { useMediaQuery } from '../../lib/useMediaQuery.js'
+import { useI18n } from '../../i18n/i18n.jsx'
 
 const COLORS = ['#0ea5e9', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6', '#e11d48', '#06b6d4']
 
 export default function PortfolioPieChart({ data = [] }) {
   const isSmall = useMediaQuery('(max-width: 639px)')
+  const { locale } = useI18n()
+  const currency = locale === 'pt' ? 'BRL' : 'USD'
+  const currencyFmt = new Intl.NumberFormat(locale || undefined, { style: 'currency', currency })
   const total = data.reduce((s, d) => s + (d.value || 0), 0)
   const chartData = data.map((d) => ({ ...d, percent: total ? (d.value / total) * 100 : 0 }))
 
@@ -28,7 +32,7 @@ export default function PortfolioPieChart({ data = [] }) {
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
-          <Tooltip formatter={(value) => value.toLocaleString(undefined, { style: 'currency', currency: 'USD' })} />
+          <Tooltip formatter={(value) => currencyFmt.format(value)} />
           {!isSmall && <Legend />}
         </PieChart>
       </ResponsiveContainer>

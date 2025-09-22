@@ -16,7 +16,12 @@
     "assumptions": "Assumptions & Contributions",
     "expenses": "Expenses",
     "incomes": "Income Streams",
-    "income_savings": "Income & Savings"
+    "income_savings": "Income & Savings",
+    "income_savings_help": "Overview of your income, expenses, savings, and savings rate.",
+    "portfolio_allocation_help": "Current portfolio breakdown and what to buy next based on targets.",
+    "wealth_projection_help": "Projected net worth over time across pessimistic, realistic, and optimistic scenarios.",
+    "fi_progress_help": "Projected withdrawal income vs. expenses at 3.5%, 4%, and 4.5%.",
+    "net_worth_history_help": "Your saved net worth snapshots over time."
   },
   "actions": {
     "undo_last": "Undo last",
@@ -24,6 +29,7 @@
     "export_data": "Export Data",
     "delete_data": "Delete Data",
     "remove": "Remove",
+    "save": "Save",
     "set_contribution_to_monthly_savings": "Set contribution to monthly savings",
     "sign_out": "Sign out",
     "send_link": "Send link",
@@ -35,6 +41,9 @@
     "under_target": "under target"
   },
   "forms": {
+    "common": {
+      "name": "Name"
+    },
     "assets": {
       "title": "Assets",
       "asset": "Asset",
@@ -46,7 +55,52 @@
       "asset_label": "Asset",
       "value_label": "Current Value ($)",
       "target_label": "Target %",
-      "asset_placeholder": "e.g., VTI"
+      "asset_placeholder": "e.g., VTI",
+      "tooltips": {
+        "asset_name": "Asset name (e.g., ETF ticker or category).",
+        "value": "Current market value of this asset.",
+        "target_percent": "Desired target allocation percentage (0-100).",
+        "current_percent": "Current allocation of this asset based on total.",
+        "gap": "Target minus current. Positive means you are under target."
+      },
+      "help": "Manage your assets. Enter current value and target allocation for each item."
+    },
+    "expenses": {
+      "help": "Track your monthly expense categories.",
+      "add_category": "Add category",
+      "no_categories": "No categories yet. Add your first expense.",
+      "amount_label": "Amount ($/mo)",
+      "tooltips": {
+        "name": "Category name (e.g., Housing, Food).",
+        "amount": "Monthly amount for this category."
+      }
+    },
+    "incomes": {
+      "help": "Track your monthly income streams.",
+      "add_stream": "Add stream",
+      "no_streams": "No income streams yet. Add your first one.",
+      "amount_label": "Amount ($/mo)",
+      "tooltips": {
+        "name": "Income stream name (e.g., Salary, Rental).",
+        "amount": "Monthly amount for this stream."
+      }
+    },
+    "assumptions": {
+      "help": "Configure return assumptions, years, and contributions.",
+      "pessimistic": "Pessimistic %",
+      "realistic": "Realistic %",
+      "optimistic": "Optimistic %",
+      "years": "Years",
+      "contribution_amount": "Contribution Amount",
+      "frequency": "Frequency",
+      "tooltips": {
+        "pessimistic": "Annual return for pessimistic scenario (%).",
+        "realistic": "Annual return for realistic scenario (%).",
+        "optimistic": "Annual return for optimistic scenario (%).",
+        "years": "Projection horizon (years).",
+        "contribution_amount": "Recurring contribution amount.",
+        "frequency": "How often the contribution is made."
+      }
     }
   },
   "labels": {
@@ -78,7 +132,29 @@
     "inputs": "Inputs",
     "graphs": "Graphs"
   },
+  "charts": {
+    "common": {
+      "year": "Year"
+    },
+    "wealth": {
+      "pessimistic": "Pessimistic",
+      "realistic": "Realistic",
+      "optimistic": "Optimistic"
+    },
+    "fi": {
+      "withdraw_35": "Withdraw rate at 3.5%",
+      "withdraw_40": "Withdraw rate at 4%",
+      "withdraw_45": "Withdraw rate at 4.5%",
+      "expenses": "Expenses"
+    },
+    "net_worth": {
+      "net_worth": "Net Worth"
+    }
+  },
   "summary": {
     "total": "Total"
+  },
+  "cards_extras": {
+    "income_savings_help": "Overview of your income, expenses, savings, and savings rate."
   }
 }

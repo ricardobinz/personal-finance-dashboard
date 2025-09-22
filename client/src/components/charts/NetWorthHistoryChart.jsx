@@ -1,23 +1,37 @@
 import React from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { useMediaQuery } from '../../lib/useMediaQuery.js'
+import { useI18n } from '../../i18n/i18n.jsx'
 
 export default function NetWorthHistoryChart({ history = [] }) {
   const isSmall = useMediaQuery('(max-width: 639px)')
+  const { t, locale } = useI18n()
+  const currencyFmt = new Intl.NumberFormat(locale || undefined, { style: 'currency', currency: 'USD' })
+  const formatCurrencyShort = (v) => {
+    const abs = Math.abs(v)
+    if (abs >= 1_000_000_000) return `${currencyFmt.format(v / 1_000_000_000)}B`
+    if (abs >= 1_000_000) return `${currencyFmt.format(v / 1_000_000)}M`
+    if (abs >= 1_000) return `${currencyFmt.format(v / 1_000)}k`
+    return currencyFmt.format(v)
+  }
   const data = history.map((h) => ({
     date: new Date(h.date).toLocaleDateString(),
     netWorth: h.netWorth,
   }))
   return (
-    <div className="w-full h-48 sm:h-64">
+    <div className="w-full h-56 sm:h-72">
       <ResponsiveContainer>
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
+          <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.4} />
           <XAxis dataKey="date" />
-          <YAxis tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
-          <Tooltip formatter={(value) => (value != null ? value.toLocaleString(undefined, { style: 'currency', currency: 'USD' }) : '')} />
+          <YAxis tickFormatter={(v) => formatCurrencyShort(v)} width={isSmall ? 48 : 64} />
+          <Tooltip
+            formatter={(value) => (value != null ? currencyFmt.format(value) : '')}
+            contentStyle={{ background: '#111827', color: 'white', border: 'none', borderRadius: 6 }}
+            wrapperStyle={{ outline: 'none' }}
+          />
           {!isSmall && <Legend />}
-          <Line type="monotone" dataKey="netWorth" stroke="#0ea5e9" dot={false} name="Net Worth" />
+          <Line type="monotone" dataKey="netWorth" stroke="#0ea5e9" strokeWidth={2.5} dot={false} activeDot={{ r: 3 }} name={t('charts.net_worth.net_worth') || 'Net Worth'} />
         </LineChart>
       </ResponsiveContainer>
     </div>
