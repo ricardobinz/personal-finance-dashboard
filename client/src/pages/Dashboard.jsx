@@ -25,6 +25,7 @@ export default function Dashboard() {
   const [status, setStatus] = useState('idle') // idle | sending | sent | error
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState('inputs') // 'graphs' | 'inputs'
+  const [tourTrigger, setTourTrigger] = useState(0)
 
   const allocation = useMemo(() => calculateAllocation(assets), [assets])
 
@@ -68,6 +69,14 @@ export default function Dashboard() {
               onClick={() => setLocale(locale === 'en' ? 'pt' : 'en')}
             >
               {locale?.toUpperCase?.()}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setTourTrigger((v) => v + 1)}
+              title={t('actions.show_tour')}
+            >
+              {t('actions.show_tour')}
             </Button>
             <Button variant="outline" onClick={signOut}>{t('actions.sign_out')}</Button>
           </div>
@@ -113,6 +122,14 @@ export default function Dashboard() {
               onClick={() => setLocale(locale === 'en' ? 'pt' : 'en')}
             >
               {locale?.toUpperCase?.()}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setTourTrigger((v) => v + 1)}
+              title={t('actions.show_tour')}
+            >
+              {t('actions.show_tour')}
             </Button>
           </div>
         )}
@@ -391,7 +408,7 @@ export default function Dashboard() {
           </div>
         </div>
       </footer>
-      <OnboardingTour controls={{ setActiveTab }} />
+      <OnboardingTour controls={{ setActiveTab, trigger: tourTrigger }} />
     </div>
   )
 }

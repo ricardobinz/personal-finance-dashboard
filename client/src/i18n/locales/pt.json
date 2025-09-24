@@ -33,7 +33,8 @@
     "send_link": "Enviar link",
     "continue_google": "Continuar com Google",
     "set_contribution_to_monthly_savings": "Definir contribuição para a poupança mensal",
-    "remove": "Remover"
+    "remove": "Remover",
+    "show_tour": "Mostrar tour"
   },
   "forms": {
     "common": {

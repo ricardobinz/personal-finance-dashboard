@@ -14,6 +14,7 @@ export default function OnboardingTour({ controls = {} }) {
   const rafRef = useRef(null)
 
   const setActiveTab = controls?.setActiveTab
+  const trigger = controls?.trigger
 
   useEffect(() => setMounted(true), [])
 
@@ -26,6 +27,13 @@ export default function OnboardingTour({ controls = {} }) {
       setOpen(true)
     }
   }, [])
+
+  // Allow parent to manually trigger opening the tour (ignores dismissed flag)
+  useEffect(() => {
+    if (typeof trigger !== 'number' || trigger <= 0) return
+    setIndex(0)
+    setOpen(true)
+  }, [trigger])
 
   const steps = useMemo(() => {
     return [
@@ -136,29 +144,52 @@ export default function OnboardingTour({ controls = {} }) {
   // Ensure correct tab and position when step changes
   useEffect(() => {
     if (!open) return
+    // Ensure the right tab/content is visible for this step
     step?.ensure?.()
-    const timeout = setTimeout(() => computeRect(), 60)
-    return () => clearTimeout(timeout)
+
+    // After ensuring tab, wait briefly for DOM to update, then scroll target into view and compute rect
+    let cancelled = false
+    let tries = 0
+    const maxTries = 12 // ~600ms worst case
+
+    const attempt = () => {
+      if (cancelled) return
+      const el = step?.selector ? document.querySelector(step.selector) : null
+      if (el) {
+        // Smoothly center the element in the viewport
+        try { el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' }) } catch {}
+        // compute immediately (scroll handler will also keep it updated)
+        computeRect()
+      } else if (tries < maxTries) {
+        tries += 1
+        setTimeout(attempt, 50)
+      } else {
+        // fallback compute (no element found)
+        computeRect()
+      }
+    }
+    const t = setTimeout(attempt, 60)
+    return () => { cancelled = true; clearTimeout(t) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index, open])
 
   // Keep position on resize/scroll
   useEffect(() => {
     if (!open) return
-    const onScroll = () => {
+    const onScrollOrResize = () => {
       cancelAnimationFrame(rafRef.current)
       rafRef.current = requestAnimationFrame(computeRect)
     }
-    window.addEventListener('scroll', onScroll, true)
-    window.addEventListener('resize', onScroll)
+    window.addEventListener('scroll', onScrollOrResize, true)
+    window.addEventListener('resize', onScrollOrResize)
     computeRect()
     return () => {
-      window.removeEventListener('scroll', onScroll, true)
-      window.removeEventListener('resize', onScroll)
+      window.removeEventListener('scroll', onScrollOrResize, true)
+      window.removeEventListener('resize', onScrollOrResize)
       cancelAnimationFrame(rafRef.current)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open])
+    // Re-bind when the target step changes so handler always uses the latest selector
+  }, [open, index, step?.selector])
 
   useEffect(() => {
     const onKey = (e) => {
