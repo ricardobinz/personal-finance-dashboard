@@ -14,6 +14,7 @@ import IncomesForm from '../components/forms/IncomesForm.jsx'
 import { Tooltip } from '../components/ui/tooltip.jsx'
 import { calculateAllocation, projectScenarios, buildFIIncomeSeries, annualizeContribution, totalMonthlyExpenses, calcSavings, yearsToFI } from '../utils/finance.js'
 import { useI18n } from '../i18n/i18n.jsx'
+import OnboardingTour from '../components/tour/OnboardingTour.jsx'
 
 export default function Dashboard() {
   const { assets, assumptions, expenses, incomes, netWorth, history, snapshotNetWorth, undoLastSnapshot, setAssumptions, exportData, eraseRemoteData } = useApp()
@@ -55,7 +56,7 @@ export default function Dashboard() {
   return (
     <div className="container-page space-y-6">
       <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{t('app.title')}</h1>
+        <h1 id="tour-app-title" className="text-2xl font-bold">{t('app.title')}</h1>
         {user ? (
           <div className="flex items-center gap-3">
             <div className="text-sm text-gray-600 hidden sm:block">{user?.email}</div>
@@ -118,7 +119,7 @@ export default function Dashboard() {
       </header>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+      <div id="tour-quick-stats" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent>
             <div className="text-xs text-gray-600">{t('stats.net_worth')}</div>
@@ -146,7 +147,7 @@ export default function Dashboard() {
       </div>
 
       {/* Tabs header */}
-      <div className="flex items-center gap-2">
+      <div id="tour-tabs" className="flex items-center gap-2">
         <Button
           variant={activeTab === 'inputs' ? 'primary' : 'outline'}
           onClick={() => setActiveTab('inputs')}
@@ -165,7 +166,7 @@ export default function Dashboard() {
 
       {activeTab === 'graphs' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
+          <Card id="tour-portfolio-allocation">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <CardTitle>{t('cards.portfolio_allocation')}</CardTitle>
@@ -188,7 +189,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card id="tour-wealth-projection">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <CardTitle>{t('cards.wealth_projection')}</CardTitle>
@@ -202,7 +203,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card id="tour-fi-progress">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <CardTitle>{t('cards.fi_progress')}</CardTitle>
@@ -216,7 +217,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card id="tour-net-worth-history">
             <CardHeader className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CardTitle>{t('cards.net_worth_history')}</CardTitle>
@@ -238,7 +239,7 @@ export default function Dashboard() {
 
       {activeTab === 'inputs' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="md:col-span-2">
+          <Card id="tour-assets" className="md:col-span-2">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <CardTitle>{t('forms.assets.title')}</CardTitle>
@@ -261,7 +262,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card className="md:col-span-2">
+          <Card id="tour-assumptions" className="md:col-span-2">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <CardTitle>{t('cards.assumptions')}</CardTitle>
@@ -275,7 +276,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card id="tour-incomes">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <CardTitle>{t('cards.incomes')}</CardTitle>
@@ -289,7 +290,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card id="tour-expenses">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <CardTitle>{t('cards.expenses')}</CardTitle>
@@ -303,7 +304,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card id="tour-income-savings">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <CardTitle>{t('cards.income_savings')}</CardTitle>
@@ -390,6 +391,7 @@ export default function Dashboard() {
           </div>
         </div>
       </footer>
+      <OnboardingTour controls={{ setActiveTab }} />
     </div>
   )
 }

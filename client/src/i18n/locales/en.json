@@ -156,5 +156,68 @@
   },
   "cards_extras": {
     "income_savings_help": "Overview of your income, expenses, savings, and savings rate."
+  },
+  "tour": {
+    "cta": {
+      "skip": "Skip",
+      "never": "Don't show again",
+      "back": "Back",
+      "next": "Next",
+      "done": "Done"
+    },
+    "steps": {
+      "intro": {
+        "title": "Welcome 👋",
+        "body": "This dashboard helps you plan your path to Financial Independence (FI).\n\nStart by adding your current assets, income, and expenses. Then set your assumptions (returns, years, and contributions). The charts will show your projected net worth and when investment income could cover your expenses."
+      },
+      "quick_stats": {
+        "title": "Quick stats",
+        "body": "A snapshot of your current Net Worth, Annual Contribution, estimated Years to FI (4% rule), and Savings Rate. These update as you edit inputs."
+      },
+      "tabs": {
+        "title": "Inputs vs Graphs",
+        "body": "Use Inputs to enter your data. Switch to Graphs to visualize projections and insights."
+      },
+      "assets": {
+        "title": "Assets",
+        "body": "Add each asset with its current value and a target allocation %.\n\nUse this to track how far you are from your ideal portfolio and what to buy next to rebalance."
+      },
+      "assumptions": {
+        "title": "Assumptions & Contributions",
+        "body": "Set pessimistic/realistic/optimistic annual returns, the projection horizon (years), and your recurring contribution. These feed the projections and FI analysis."
+      },
+      "incomes": {
+        "title": "Income streams",
+        "body": "List your monthly income sources (e.g., salary, rental). This is used to compute your savings and can help set an appropriate contribution."
+      },
+      "expenses": {
+        "title": "Expenses",
+        "body": "List your monthly expenses by category. This determines your annual expenses, a key input for the FI targets and the red line in the FI chart."
+      },
+      "income_savings": {
+        "title": "Income & savings",
+        "body": "See totals for income, expenses, monthly savings, and savings rate.\n\nTip: Click ‘Set contribution to monthly savings’ to automatically use your current savings as the recurring contribution."
+      },
+      "graphs": {
+        "title": "Graphs",
+        "body": "Now let’s switch to Graphs to explore your projections and FI insights."
+      },
+      "portfolio_allocation": {
+        "title": "Portfolio allocation",
+        "body": "View your current allocation and ‘What to buy next’ based on your targets. Use this to guide contributions and rebalancing."
+      },
+      "wealth_projection": {
+        "title": "Wealth projection",
+        "body": "Projected net worth over time under pessimistic, realistic, and optimistic returns. Use this to understand the range of possible outcomes."
+      },
+      "fi_progress": {
+        "title": "FI progress (4% rule)",
+        "body": "Projected withdrawal income at 3.5%, 4%, and 4.5% vs your expenses (red dashed line).\n\nWhen a withdrawal line rises above expenses, your investments could cover your costs—an FI milestone."
+      },
+      "net_worth_history": {
+        "title": "Net worth history",
+        "body": "Save snapshots of your current net worth over time. Track progress and celebrate milestones."
+      }
+    }
   }
 }

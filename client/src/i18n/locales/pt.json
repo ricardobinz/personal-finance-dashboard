@@ -153,5 +153,68 @@
     "net_worth": {
       "net_worth": "Patrimônio"
     }
+  },
+  "tour": {
+    "cta": {
+      "skip": "Pular",
+      "never": "Não mostrar novamente",
+      "back": "Voltar",
+      "next": "Avançar",
+      "done": "Concluir"
+    },
+    "steps": {
+      "intro": {
+        "title": "Bem-vindo(a) 👋",
+        "body": "Este painel ajuda você a planejar seu caminho para a Independência Financeira (IF).\n\nComece adicionando seus ativos, rendas e despesas atuais. Depois defina as premissas (retornos, anos e contribuições). Os gráficos mostrarão a projeção do patrimônio e quando a renda de investimentos pode cobrir suas despesas."
+      },
+      "quick_stats": {
+        "title": "Estatísticas rápidas",
+        "body": "Um retrato do seu Patrimônio, Contribuição Anual, estimativa de Anos até a IF (regra dos 4%) e Taxa de Poupança. Atualiza conforme você edita as entradas."
+      },
+      "tabs": {
+        "title": "Entradas vs Gráficos",
+        "body": "Use Entradas para cadastrar dados. Troque para Gráficos para visualizar projeções e insights."
+      },
+      "assets": {
+        "title": "Ativos",
+        "body": "Adicione cada ativo com seu valor atual e a % de alocação alvo.\n\nAcompanhe o quanto você está do portfólio ideal e o que comprar a seguir para rebalancear."
+      },
+      "assumptions": {
+        "title": "Premissas e Contribuições",
+        "body": "Defina retornos anuais pessimista/realista/otimista, o horizonte (anos) e a contribuição recorrente. Isso alimenta as projeções e a análise de IF."
+      },
+      "incomes": {
+        "title": "Fontes de renda",
+        "body": "Liste suas fontes de renda mensais (ex.: salário, aluguel). Usamos para calcular sua poupança e ajudar a definir uma contribuição adequada."
+      },
+      "expenses": {
+        "title": "Despesas",
+        "body": "Liste suas despesas mensais por categoria. Isso determina suas despesas anuais, insumo fundamental para as metas de IF e a linha vermelha no gráfico de IF."
+      },
+      "income_savings": {
+        "title": "Renda e poupança",
+        "body": "Veja os totais de renda, despesas, poupança mensal e taxa de poupança.\n\nDica: Clique em ‘Definir contribuição para a poupança mensal’ para usar sua poupança atual como contribuição recorrente."
+      },
+      "graphs": {
+        "title": "Gráficos",
+        "body": "Agora vamos para Gráficos para explorar projeções e insights de IF."
+      },
+      "portfolio_allocation": {
+        "title": "Alocação da carteira",
+        "body": "Veja sua alocação atual e ‘O que comprar a seguir’ com base nas metas. Use para orientar contribuições e rebalanceamento."
+      },
+      "wealth_projection": {
+        "title": "Projeção de patrimônio",
+        "body": "Patrimônio projetado ao longo do tempo nos cenários pessimista, realista e otimista. Use para entender a faixa de possíveis resultados."
+      },
+      "fi_progress": {
+        "title": "Progresso de IF (regra dos 4%)",
+        "body": "Renda potencial de saque em 3,5%, 4% e 4,5% vs suas despesas (linha vermelha tracejada).\n\nQuando uma linha de saque fica acima das despesas, seus investimentos podem cobrir seus custos — um marco de IF."
+      },
+      "net_worth_history": {
+        "title": "Histórico do patrimônio",
+        "body": "Salve registros do seu patrimônio atual ao longo do tempo. Acompanhe a evolução e comemore marcos."
+      }
+    }
   }
 }
