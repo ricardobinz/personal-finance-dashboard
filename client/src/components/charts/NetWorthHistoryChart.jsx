@@ -6,7 +6,8 @@ import { useI18n } from '../../i18n/i18n.jsx'
 export default function NetWorthHistoryChart({ history = [] }) {
   const isSmall = useMediaQuery('(max-width: 639px)')
   const { t, locale } = useI18n()
-  const currencyFmt = new Intl.NumberFormat(locale || undefined, { style: 'currency', currency: 'USD' })
+  const currency = locale === 'pt' ? 'BRL' : 'USD'
+  const currencyFmt = new Intl.NumberFormat(locale || undefined, { style: 'currency', currency })
   const formatCurrencyShort = (v) => {
     const abs = Math.abs(v)
     if (abs >= 1_000_000_000) return `${currencyFmt.format(v / 1_000_000_000)}B`
@@ -21,10 +22,10 @@ export default function NetWorthHistoryChart({ history = [] }) {
   return (
     <div className="w-full h-56 sm:h-72">
       <ResponsiveContainer>
-        <LineChart data={data}>
+        <LineChart data={data} margin={{ left: isSmall ? 0 : 10, right: 12, top: 8, bottom: 8 }}>
           <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.4} />
           <XAxis dataKey="date" />
-          <YAxis tickFormatter={(v) => formatCurrencyShort(v)} width={isSmall ? 48 : 64} />
+          <YAxis tickFormatter={(v) => formatCurrencyShort(v)} width={isSmall ? 64 : 88} />
           <Tooltip
             formatter={(value) => (value != null ? currencyFmt.format(value) : '')}
             contentStyle={{ background: '#111827', color: 'white', border: 'none', borderRadius: 6 }}

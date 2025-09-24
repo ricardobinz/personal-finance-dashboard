@@ -28,10 +28,10 @@ export default function WealthProjectionChart({ scenarios }) {
   return (
     <div className="w-full h-56 sm:h-80">
       <ResponsiveContainer>
-        <LineChart data={data}>
+        <LineChart data={data} margin={{ left: isSmall ? 0 : 10, right: 12, top: 8, bottom: 8 }}>
           <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.4} />
           <XAxis dataKey="year" label={isSmall ? undefined : { value: t('charts.common.year') || 'Year', position: 'insideBottomRight', offset: -5 }} />
-          <YAxis tickFormatter={(v) => formatCurrencyShort(v)} width={isSmall ? 48 : 64} />
+          <YAxis tickFormatter={(v) => formatCurrencyShort(v)} width={isSmall ? 64 : 88} />
           <Tooltip
             formatter={(value) => (value != null ? currencyFmt.format(value) : '')}
             labelFormatter={(label) => `${t('charts.common.year') || 'Year'} ${label}`}

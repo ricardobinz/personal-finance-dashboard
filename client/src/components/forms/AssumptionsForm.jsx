@@ -24,7 +24,7 @@ export default function AssumptionsForm() {
           </Tooltip>
         </label>
         <div className="relative">
-          <input type="number" step="0.1" min="0" max="100" className="w-full border rounded-md pr-6 pl-2 py-2 text-right" value={assumptions.pessimistic * 100}
+          <input type="number" step="0.1" min="0" max="100" className="w-full border rounded-md pr-6 pl-2 py-2 text-right" value={Number((assumptions.pessimistic * 100).toFixed(1))}
             onChange={(e) => handleChange('pessimistic', Number(e.target.value) / 100)} />
           <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-500">%</span>
         </div>
@@ -36,7 +36,7 @@ export default function AssumptionsForm() {
           </Tooltip>
         </label>
         <div className="relative">
-          <input type="number" step="0.1" min="0" max="100" className="w-full border rounded-md pr-6 pl-2 py-2 text-right" value={assumptions.realistic * 100}
+          <input type="number" step="0.1" min="0" max="100" className="w-full border rounded-md pr-6 pl-2 py-2 text-right" value={Number((assumptions.realistic * 100).toFixed(1))}
             onChange={(e) => handleChange('realistic', Number(e.target.value) / 100)} />
           <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-500">%</span>
         </div>
@@ -48,7 +48,7 @@ export default function AssumptionsForm() {
           </Tooltip>
         </label>
         <div className="relative">
-          <input type="number" step="0.1" min="0" max="100" className="w-full border rounded-md pr-6 pl-2 py-2 text-right" value={assumptions.optimistic * 100}
+          <input type="number" step="0.1" min="0" max="100" className="w-full border rounded-md pr-6 pl-2 py-2 text-right" value={Number((assumptions.optimistic * 100).toFixed(1))}
             onChange={(e) => handleChange('optimistic', Number(e.target.value) / 100)} />
           <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-500">%</span>
         </div>
