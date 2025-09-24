@@ -5,8 +5,8 @@ import { useI18n } from '../../i18n/i18n.jsx'
 
 const STORAGE_KEY = 'pf_tour_dismissed'
 
-export default function OnboardingTour({ controls = {} }) {
-  const { t } = useI18n()
+export default function OnboardingTour({ controls = {}, scope }) {
+  const { t, locale, setLocale } = useI18n()
   const [open, setOpen] = useState(false)
   const [index, setIndex] = useState(0)
   const [rect, setRect] = useState(null)
@@ -21,12 +21,31 @@ export default function OnboardingTour({ controls = {} }) {
   useEffect(() => {
     // Auto-open if user hasn't dismissed permanently
     try {
-      const dismissed = localStorage.getItem(STORAGE_KEY)
-      if (!dismissed) setOpen(true)
+      const suffix = scope || 'anon'
+      const dismissed = localStorage.getItem(`${STORAGE_KEY}:${suffix}`)
+      if (!dismissed) {
+        setOpen(true)
+      }
     } catch {
       setOpen(true)
     }
   }, [])
+
+  // Re-evaluate auto-open when the scope changes (e.g., user logs in)
+  useEffect(() => {
+    if (!mounted) return
+    // If already open, don't change
+    if (open) return
+    try {
+      const suffix = scope || 'anon'
+      const dismissed = localStorage.getItem(`${STORAGE_KEY}:${suffix}`)
+      if (!dismissed) {
+        setOpen(true)
+      }
+    } catch {
+      setOpen(true)
+    }
+  }, [scope])
 
   // Allow parent to manually trigger opening the tour (ignores dismissed flag)
   useEffect(() => {
@@ -210,7 +229,10 @@ export default function OnboardingTour({ controls = {} }) {
   const close = () => setOpen(false)
   const skip = () => setOpen(false)
   const never = () => {
-    try { localStorage.setItem(STORAGE_KEY, '1') } catch {}
+    try {
+      const suffix = scope || 'anon'
+      localStorage.setItem(`${STORAGE_KEY}:${suffix}`, '1')
+    } catch {}
     setOpen(false)
   }
   const next = () => setIndex((i) => Math.min(total - 1, i + 1))
@@ -270,6 +292,31 @@ export default function OnboardingTour({ controls = {} }) {
         <div className="p-4 text-sm text-gray-700 whitespace-pre-line">
           {step?.body}
         </div>
+        {index === 0 && (
+          <div className="px-4 pb-1 -mt-2">
+            <div className="text-xs text-gray-600 mb-2">{t('actions.choose_language')}</div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant={locale === 'en' ? 'primary' : 'outline'}
+                size="sm"
+                className="whitespace-nowrap"
+                onClick={() => setLocale('en')}
+                aria-pressed={locale === 'en'}
+              >
+                {t('lang.en')}
+              </Button>
+              <Button
+                variant={locale === 'pt' ? 'primary' : 'outline'}
+                size="sm"
+                className="whitespace-nowrap"
+                onClick={() => setLocale('pt')}
+                aria-pressed={locale === 'pt'}
+              >
+                {t('lang.pt')}
+              </Button>
+            </div>
+          </div>
+        )}
         <div className="p-3 border-t border-gray-200 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={skip}>{t('tour.cta.skip')}</Button>

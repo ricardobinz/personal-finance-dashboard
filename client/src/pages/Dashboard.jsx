@@ -82,6 +82,15 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setTourTrigger((v) => v + 1)}
+              title={t('actions.show_tour')}
+              className="whitespace-nowrap"
+            >
+              {t('actions.show_tour')}
+            </Button>
             <form
               className="flex items-center gap-2"
               onSubmit={async (e) => {
@@ -122,14 +131,6 @@ export default function Dashboard() {
               onClick={() => setLocale(locale === 'en' ? 'pt' : 'en')}
             >
               {locale?.toUpperCase?.()}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setTourTrigger((v) => v + 1)}
-              title={t('actions.show_tour')}
-            >
-              {t('actions.show_tour')}
             </Button>
           </div>
         )}
@@ -408,7 +409,7 @@ export default function Dashboard() {
           </div>
         </div>
       </footer>
-      <OnboardingTour controls={{ setActiveTab, trigger: tourTrigger }} />
+      <OnboardingTour controls={{ setActiveTab, trigger: tourTrigger }} scope={user?.id || 'anon'} />
     </div>
   )
 }
