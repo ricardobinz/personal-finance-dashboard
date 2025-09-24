@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { useMediaQuery } from '../../lib/useMediaQuery.js'
 import { useI18n } from '../../i18n/i18n.jsx'
+import { capture } from '../../lib/analytics.js'
 
 export default function WealthProjectionChart({ scenarios }) {
   if (!scenarios) return null
@@ -24,6 +25,7 @@ export default function WealthProjectionChart({ scenarios }) {
     realistic: realistic[i]?.value ?? null,
     optimistic: optimistic[i]?.value ?? null,
   }))
+  useEffect(() => { capture('view_wealth_projection') }, [])
 
   return (
     <div className="w-full h-56 sm:h-80">

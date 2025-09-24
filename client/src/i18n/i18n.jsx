@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import en from './locales/en.json'
 import pt from './locales/pt.json'
+import { setSuperProps } from '../lib/analytics.js'
 
 const MESSAGES = { en, pt }
 const DEFAULT_LOCALE = 'en'
@@ -23,6 +24,8 @@ export function I18nProvider({ children }) {
     if (typeof document !== 'undefined') {
       document.documentElement.lang = locale
     }
+    // also register analytics super prop
+    try { setSuperProps({ locale }) } catch {}
   }, [locale])
 
   const messages = MESSAGES[locale] || MESSAGES[DEFAULT_LOCALE]

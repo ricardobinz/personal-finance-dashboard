@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { useMediaQuery } from '../../lib/useMediaQuery.js'
 import { useI18n } from '../../i18n/i18n.jsx'
+import { capture } from '../../lib/analytics.js'
 
 export default function FIProgressChart({ data }) {
   if (!data) return null
@@ -16,6 +17,7 @@ export default function FIProgressChart({ data }) {
     if (abs >= 1_000) return `${currencyFmt.format(v / 1_000)}k`
     return currencyFmt.format(v)
   }
+  useEffect(() => { capture('view_fi_progress') }, [])
   return (
     <div className="w-full h-56 sm:h-80">
       <ResponsiveContainer>

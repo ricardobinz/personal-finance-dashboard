@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { useMediaQuery } from '../../lib/useMediaQuery.js'
 import { useI18n } from '../../i18n/i18n.jsx'
+import { capture } from '../../lib/analytics.js'
 
 export default function NetWorthHistoryChart({ history = [] }) {
   const isSmall = useMediaQuery('(max-width: 639px)')
@@ -19,6 +20,7 @@ export default function NetWorthHistoryChart({ history = [] }) {
     date: new Date(h.date).toLocaleDateString(),
     netWorth: h.netWorth,
   }))
+  useEffect(() => { capture('view_net_worth_history') }, [])
   return (
     <div className="w-full h-56 sm:h-72">
       <ResponsiveContainer>

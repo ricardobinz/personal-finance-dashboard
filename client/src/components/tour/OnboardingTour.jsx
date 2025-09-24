@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Button } from '../ui/button.jsx'
 import { useI18n } from '../../i18n/i18n.jsx'
+import { capture } from '../../lib/analytics.js'
 
 const STORAGE_KEY = 'pf_tour_dismissed'
 
@@ -25,9 +26,11 @@ export default function OnboardingTour({ controls = {}, scope }) {
       const dismissed = localStorage.getItem(`${STORAGE_KEY}:${suffix}`)
       if (!dismissed) {
         setOpen(true)
+        capture('tour_opened', { method: 'auto', scope: scope || 'anon' })
       }
     } catch {
       setOpen(true)
+      capture('tour_opened', { method: 'auto', scope: scope || 'anon' })
     }
   }, [])
 
@@ -41,9 +44,11 @@ export default function OnboardingTour({ controls = {}, scope }) {
       const dismissed = localStorage.getItem(`${STORAGE_KEY}:${suffix}`)
       if (!dismissed) {
         setOpen(true)
+        capture('tour_opened', { method: 'auto', scope: scope || 'anon' })
       }
     } catch {
       setOpen(true)
+      capture('tour_opened', { method: 'auto', scope: scope || 'anon' })
     }
   }, [scope])
 
@@ -52,6 +57,7 @@ export default function OnboardingTour({ controls = {}, scope }) {
     if (typeof trigger !== 'number' || trigger <= 0) return
     setIndex(0)
     setOpen(true)
+    capture('tour_opened', { method: 'manual', scope: scope || 'anon' })
   }, [trigger])
 
   const steps = useMemo(() => {
@@ -210,6 +216,12 @@ export default function OnboardingTour({ controls = {}, scope }) {
     // Re-bind when the target step changes so handler always uses the latest selector
   }, [open, index, step?.selector])
 
+  // Track step impressions
+  useEffect(() => {
+    if (!open) return
+    capture('tour_step_seen', { index, selector: step?.selector, scope: scope || 'anon' })
+  }, [index, open])
+
   useEffect(() => {
     const onKey = (e) => {
       if (!open) return
@@ -226,17 +238,36 @@ export default function OnboardingTour({ controls = {}, scope }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [open, index])
 
-  const close = () => setOpen(false)
-  const skip = () => setOpen(false)
+  const close = () => {
+    if (index >= total - 1) {
+      capture('tour_completed', { scope: scope || 'anon' })
+    } else {
+      capture('tour_closed', { index, scope: scope || 'anon' })
+    }
+    setOpen(false)
+  }
+  const skip = () => {
+    capture('tour_skip', { index, scope: scope || 'anon' })
+    setOpen(false)
+  }
   const never = () => {
     try {
       const suffix = scope || 'anon'
       localStorage.setItem(`${STORAGE_KEY}:${suffix}`, '1')
     } catch {}
+    capture('tour_never', { index, scope: scope || 'anon' })
     setOpen(false)
   }
-  const next = () => setIndex((i) => Math.min(total - 1, i + 1))
-  const prev = () => setIndex((i) => Math.max(0, i - 1))
+  const next = () => setIndex((i) => {
+    const to = Math.min(total - 1, i + 1)
+    capture('tour_next', { from: i, to, scope: scope || 'anon' })
+    return to
+  })
+  const prev = () => setIndex((i) => {
+    const to = Math.max(0, i - 1)
+    capture('tour_prev', { from: i, to, scope: scope || 'anon' })
+    return to
+  })
 
   if (!mounted || !open) return null
 
@@ -300,7 +331,7 @@ export default function OnboardingTour({ controls = {}, scope }) {
                 variant={locale === 'en' ? 'primary' : 'outline'}
                 size="sm"
                 className="whitespace-nowrap"
-                onClick={() => setLocale('en')}
+                onClick={() => { capture('tour_language_selected', { locale: 'en', scope: scope || 'anon' }); setLocale('en') }}
                 aria-pressed={locale === 'en'}
               >
                 {t('lang.en')}
@@ -309,7 +340,7 @@ export default function OnboardingTour({ controls = {}, scope }) {
                 variant={locale === 'pt' ? 'primary' : 'outline'}
                 size="sm"
                 className="whitespace-nowrap"
-                onClick={() => setLocale('pt')}
+                onClick={() => { capture('tour_language_selected', { locale: 'pt', scope: scope || 'anon' }); setLocale('pt') }}
                 aria-pressed={locale === 'pt'}
               >
                 {t('lang.pt')}

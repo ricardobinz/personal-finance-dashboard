@@ -3,6 +3,7 @@ import { getJSON, setJSON } from '../utils/storage.js'
 import { sumAssetsValue } from '../utils/finance.js'
 import { useAuth } from './AuthContext.jsx'
 import { loadUserData, saveUserData, deleteUserData } from '../utils/cloudSync.js'
+import { capture } from '../lib/analytics.js'
 
 const STORAGE_KEYS = {
   assets: 'pf_assets',
@@ -30,10 +31,10 @@ const AppContext = createContext(null)
 export function AppProvider({ children }) {
   const { user } = useAuth()
   // Unauthenticated by default: start with empty/default state
-  const [assets, setAssets] = useState(defaultAssets)
-  const [assumptions, setAssumptions] = useState(defaultAssumptions)
-  const [expenses, setExpenses] = useState(defaultExpenses)
-  const [incomes, setIncomes] = useState(defaultIncomes)
+  const [assets, setAssetsState] = useState(defaultAssets)
+  const [assumptions, setAssumptionsState] = useState(defaultAssumptions)
+  const [expenses, setExpensesState] = useState(defaultExpenses)
+  const [incomes, setIncomesState] = useState(defaultIncomes)
   const [history, setHistory] = useState(defaultHistory)
   const [hydratedFromCloud, setHydratedFromCloud] = useState(false)
   const lastSavedRef = useRef(null)
@@ -48,10 +49,10 @@ export function AppProvider({ children }) {
   // On sign-out: clear in-memory state and localStorage
   useEffect(() => {
     if (!user) {
-      setAssets(defaultAssets)
-      setAssumptions(defaultAssumptions)
-      setExpenses(defaultExpenses)
-      setIncomes(defaultIncomes)
+      setAssetsState(defaultAssets)
+      setAssumptionsState(defaultAssumptions)
+      setExpensesState(defaultExpenses)
+      setIncomesState(defaultIncomes)
       setHistory(defaultHistory)
       try {
         localStorage.removeItem(STORAGE_KEYS.assets)
@@ -81,20 +82,20 @@ export function AppProvider({ children }) {
         if (
           cachedAssets || cachedAssumptions || cachedExpenses || cachedIncomes || cachedHistory
         ) {
-          setAssets(cachedAssets ?? defaultAssets)
-          setAssumptions(cachedAssumptions ?? defaultAssumptions)
-          setExpenses(cachedExpenses ?? defaultExpenses)
-          setIncomes(cachedIncomes ?? defaultIncomes)
+          setAssetsState(cachedAssets ?? defaultAssets)
+          setAssumptionsState(cachedAssumptions ?? defaultAssumptions)
+          setExpensesState(cachedExpenses ?? defaultExpenses)
+          setIncomesState(cachedIncomes ?? defaultIncomes)
           setHistory(cachedHistory ?? defaultHistory)
         }
 
         const remote = await loadUserData(user.id)
         if (canceled) return
         if (remote) {
-          setAssets(remote.assets ?? defaultAssets)
-          setAssumptions(remote.assumptions ?? defaultAssumptions)
-          setExpenses(remote.expenses ?? defaultExpenses)
-          setIncomes(remote.incomes ?? defaultIncomes)
+          setAssetsState(remote.assets ?? defaultAssets)
+          setAssumptionsState(remote.assumptions ?? defaultAssumptions)
+          setExpensesState(remote.expenses ?? defaultExpenses)
+          setIncomesState(remote.incomes ?? defaultIncomes)
           setHistory(remote.history ?? defaultHistory)
         } else {
           // Initialize remote with current local data
@@ -104,10 +105,12 @@ export function AppProvider({ children }) {
             lastSavedRef.current = JSON.stringify(payload)
           } catch (e) {
             console.warn('Failed to initialize remote data', e)
+            capture('cloud_init_save_error')
           }
         }
       } catch (e) {
         console.warn('Cloud sync load error', e)
+        capture('cloud_sync_load_error')
       } finally {
         if (!canceled) setHydratedFromCloud(true)
       }
@@ -130,7 +133,7 @@ export function AppProvider({ children }) {
         .then(() => {
           lastSavedRef.current = json
         })
-        .catch((e) => console.warn('Cloud save error', e))
+        .catch((e) => { console.warn('Cloud save error', e); capture('cloud_sync_save_error') })
     }, 600)
     return () => clearTimeout(handle)
   }, [user, hydratedFromCloud, assets, assumptions, expenses, incomes, history])
@@ -192,14 +195,57 @@ export function AppProvider({ children }) {
 
   // Asset actions
   const addAsset = (asset) => {
-    setAssets((prev) => [...prev, { id: crypto.randomUUID(), name: '', value: 0, targetPercent: 0, ...asset }])
+    setAssetsState((prev) => {
+      const nextAsset = { id: crypto.randomUUID(), name: '', value: 0, targetPercent: 0, ...asset }
+      const next = [...prev, nextAsset]
+      capture('asset_added', { total_assets_after: next.length, has_target_percent: Boolean(nextAsset.targetPercent) })
+      return next
+    })
     // snapshot triggered via effect pattern by caller to avoid double snapshots
   }
   const updateAsset = (id, patch) => {
-    setAssets((prev) => prev.map((a) => (a.id === id ? { ...a, ...patch } : a)))
+    setAssetsState((prev) => {
+      const before = prev.find((a) => a.id === id) || {}
+      const changed_fields = Object.keys(patch).filter((k) => before[k] !== patch[k])
+      const next = prev.map((a) => (a.id === id ? { ...a, ...patch } : a))
+      if (changed_fields.length) capture('asset_updated', { changed_fields })
+      return next
+    })
   }
   const removeAsset = (id) => {
-    setAssets((prev) => prev.filter((a) => a.id !== id))
+    setAssetsState((prev) => {
+      const next = prev.filter((a) => a.id !== id)
+      capture('asset_removed', { total_assets_after: next.length })
+      return next
+    })
+  }
+
+  // Wrap setters to capture changes (avoid sending raw values)
+  const setAssumptions = (updater) => {
+    setAssumptionsState((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : updater
+      const changed_fields = Object.keys(next).filter((k) => next[k] !== prev[k])
+      if (changed_fields.length) capture('assumptions_changed', { changed_fields })
+      return next
+    })
+  }
+  const setExpenses = (updater) => {
+    setExpensesState((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : updater
+      const prevCount = Array.isArray(prev?.categories) ? prev.categories.length : 0
+      const nextCount = Array.isArray(next?.categories) ? next.categories.length : 0
+      if (prevCount !== nextCount) capture('expenses_changed', { categories_count: nextCount })
+      return next
+    })
+  }
+  const setIncomes = (updater) => {
+    setIncomesState((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : updater
+      const prevCount = Array.isArray(prev?.categories) ? prev.categories.length : 0
+      const nextCount = Array.isArray(next?.categories) ? next.categories.length : 0
+      if (prevCount !== nextCount) capture('incomes_changed', { categories_count: nextCount })
+      return next
+    })
   }
 
   const value = {
@@ -215,7 +261,7 @@ export function AppProvider({ children }) {
     addAsset,
     updateAsset,
     removeAsset,
-    setAssets,
+    setAssets: setAssetsState,
     snapshotNetWorth,
     undoLastSnapshot,
     setHistory,

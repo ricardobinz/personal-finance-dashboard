@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { useMediaQuery } from '../../lib/useMediaQuery.js'
 import { useI18n } from '../../i18n/i18n.jsx'
+import { capture } from '../../lib/analytics.js'
 
 const COLORS = ['#0ea5e9', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6', '#e11d48', '#06b6d4']
 
@@ -12,6 +13,7 @@ export default function PortfolioPieChart({ data = [] }) {
   const currencyFmt = new Intl.NumberFormat(locale || undefined, { style: 'currency', currency })
   const total = data.reduce((s, d) => s + (d.value || 0), 0)
   const chartData = data.map((d) => ({ ...d, percent: total ? (d.value / total) * 100 : 0 }))
+  useEffect(() => { capture('view_portfolio_allocation') }, [])
 
   return (
     <div className="w-full h-56 sm:h-72">

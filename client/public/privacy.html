@@ -64,13 +64,16 @@
 
       <h2>Cookies and tokens</h2>
       <ul>
-        <li>The app itself does not use tracking cookies or analytics.</li>
+        <li>
+          Optional, consent-based analytics may be used to improve product quality. When enabled by you, a privacy-friendly analytics script (PostHog Cloud) may set cookies or use local storage to function. You can decline analytics in the banner or clear your consent any time by clearing site data.
+        </li>
         <li>Supabase Auth stores a session (token) in web storage to keep you signed in. You may sign out to clear it.</li>
       </ul>
 
       <h2>Data sharing</h2>
       <p>
-        No third-party analytics are used. When using cloud sync, Supabase acts as a processor to store your data. Review Supabase's security and compliance documentation for details.
+        If you accept analytics, limited usage data is processed by PostHog Cloud (regional host may vary by configuration) to provide product analytics such as page views, feature usage, and performance metrics. Financial amounts and emails are not sent in analytics events; events are pseudonymous.
+        When using cloud sync, Supabase acts as a processor to store your data. Review each provider's security and compliance documentation for details.
       </p>
 
       <h2>Security</h2>

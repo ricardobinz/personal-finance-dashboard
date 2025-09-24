@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useApp } from '../context/AppContext.jsx'
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card.jsx'
 import { Button } from '../components/ui/button.jsx'
@@ -15,6 +15,7 @@ import { Tooltip } from '../components/ui/tooltip.jsx'
 import { calculateAllocation, projectScenarios, buildFIIncomeSeries, annualizeContribution, totalMonthlyExpenses, calcSavings, yearsToFI } from '../utils/finance.js'
 import { useI18n } from '../i18n/i18n.jsx'
 import OnboardingTour from '../components/tour/OnboardingTour.jsx'
+import { capture } from '../lib/analytics.js'
 
 export default function Dashboard() {
   const { assets, assumptions, expenses, incomes, netWorth, history, snapshotNetWorth, undoLastSnapshot, setAssumptions, exportData, eraseRemoteData } = useApp()
@@ -26,6 +27,10 @@ export default function Dashboard() {
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState('inputs') // 'graphs' | 'inputs'
   const [tourTrigger, setTourTrigger] = useState(0)
+
+  useEffect(() => {
+    capture('dashboard_viewed')
+  }, [])
 
   const allocation = useMemo(() => calculateAllocation(assets), [assets])
 
@@ -66,14 +71,14 @@ export default function Dashboard() {
               size="sm"
               aria-label={locale === 'en' ? t('lang.pt') : t('lang.en')}
               title={locale === 'en' ? t('lang.pt') : t('lang.en')}
-              onClick={() => setLocale(locale === 'en' ? 'pt' : 'en')}
+              onClick={() => { const from = locale; const to = locale === 'en' ? 'pt' : 'en'; capture('language_changed', { from, to }); setLocale(to) }}
             >
               {locale?.toUpperCase?.()}
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setTourTrigger((v) => v + 1)}
+              onClick={() => { capture('tour_open_button_clicked'); setTourTrigger((v) => v + 1) }}
               title={t('actions.show_tour')}
             >
               {t('actions.show_tour')}
@@ -85,7 +90,7 @@ export default function Dashboard() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setTourTrigger((v) => v + 1)}
+              onClick={() => { capture('tour_open_button_clicked'); setTourTrigger((v) => v + 1) }}
               title={t('actions.show_tour')}
               className="whitespace-nowrap"
             >
@@ -128,7 +133,7 @@ export default function Dashboard() {
               size="sm"
               aria-label={locale === 'en' ? t('lang.pt') : t('lang.en')}
               title={locale === 'en' ? t('lang.pt') : t('lang.en')}
-              onClick={() => setLocale(locale === 'en' ? 'pt' : 'en')}
+              onClick={() => { const from = locale; const to = locale === 'en' ? 'pt' : 'en'; capture('language_changed', { from, to }); setLocale(to) }}
             >
               {locale?.toUpperCase?.()}
             </Button>
@@ -168,14 +173,14 @@ export default function Dashboard() {
       <div id="tour-tabs" className="flex items-center gap-2">
         <Button
           variant={activeTab === 'inputs' ? 'primary' : 'outline'}
-          onClick={() => setActiveTab('inputs')}
+          onClick={() => { setActiveTab('inputs'); capture('tab_changed', { tab: 'inputs' }) }}
           aria-pressed={activeTab === 'inputs'}
         >
           {t('tabs.inputs')}
         </Button>
         <Button
           variant={activeTab === 'graphs' ? 'primary' : 'outline'}
-          onClick={() => setActiveTab('graphs')}
+          onClick={() => { setActiveTab('graphs'); capture('tab_changed', { tab: 'graphs' }) }}
           aria-pressed={activeTab === 'graphs'}
         >
           {t('tabs.graphs')}
@@ -244,8 +249,8 @@ export default function Dashboard() {
                 </Tooltip>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="outline" onClick={undoLastSnapshot}>{t('actions.undo_last')}</Button>
-                <Button onClick={snapshotNetWorth}>{t('actions.save_snapshot')}</Button>
+                <Button variant="outline" onClick={() => { capture('snapshot_undo'); undoLastSnapshot() }}>{t('actions.undo_last')}</Button>
+                <Button onClick={() => { capture('snapshot_saved'); snapshotNetWorth() }}>{t('actions.save_snapshot')}</Button>
               </div>
             </CardHeader>
             <CardContent>
@@ -345,7 +350,10 @@ export default function Dashboard() {
               <div className="mt-3">
                 <Button
                   disabled={savings.monthlySavings <= 0}
-                  onClick={() => setAssumptions((prev) => ({ ...prev, contributionAmount: Math.max(0, Math.round(savings.monthlySavings)), contributionFrequency: 'monthly' }))}
+                  onClick={() => {
+                    capture('set_contribution_from_savings', { enabled: savings.monthlySavings > 0 })
+                    setAssumptions((prev) => ({ ...prev, contributionAmount: Math.max(0, Math.round(savings.monthlySavings)), contributionFrequency: 'monthly' }))
+                  }}
                 >
                   {t('actions.set_contribution_to_monthly_savings')}
                 </Button>
@@ -359,13 +367,13 @@ export default function Dashboard() {
         <div className="flex items-center justify-between gap-4 flex-wrap">
           {/* Social links */}
           <div className="flex items-center gap-3">
-            <a href="https://www.linkedin.com/in/ricardobinz/" target="_blank" rel="noreferrer noopener" aria-label="LinkedIn" className="text-gray-600 hover:text-gray-900">
+            <a href="https://www.linkedin.com/in/ricardobinz/" target="_blank" rel="noreferrer noopener" aria-label="LinkedIn" className="text-gray-600 hover:text-gray-900" onClick={() => capture('footer_link_clicked', { dest: 'linkedin' })}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM0 8h5v16H0V8zm7.5 0h4.8v2.2h.07c.67-1.2 2.3-2.47 4.74-2.47 5.07 0 6 3.34 6 7.7V24h-5v-7.5c0-1.8-.03-4.12-2.5-4.12-2.5 0-2.88 1.95-2.88 3.98V24h-5V8z"/></svg>
             </a>
-            <a href="https://ricardobinz.github.io/personal_website/index.html" target="_blank" rel="noreferrer noopener" aria-label="Website" className="text-gray-600 hover:text-gray-900">
+            <a href="https://ricardobinz.github.io/personal_website/index.html" target="_blank" rel="noreferrer noopener" aria-label="Website" className="text-gray-600 hover:text-gray-900" onClick={() => capture('footer_link_clicked', { dest: 'website' })}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm7.93 9h-3.17c-.15-2.33-.98-4.37-2.18-5.9A8.03 8.03 0 0 1 19.93 11zM12 4.07c1.62 1.7 2.7 4.27 2.93 6.93H9.07C9.3 8.34 10.38 5.77 12 4.07zM4.07 13h3.17c.15 2.33.98 4.37 2.18 5.9A8.03 8.03 0 0 1 4.07 13zM8.1 13h7.8c-.25 2.39-1.2 4.66-2.73 6.12-.42.4-.89.74-1.37 1.02-.48-.28-.95-.62-1.37-1.02A9.93 9.93 0 0 1 8.1 13zM14.83 5.1c1.2 1.53 2.03 3.57 2.18 5.9h-3.98c.23-2.66 1.31-5.23 2.93-6.93zM12 19.93c-1.62-1.7-2.7-4.27-2.93-6.93h5.86c-.23 2.66-1.31 5.23-2.93 6.93zM11.24 5.1c-1.2 1.53-2.03 3.57-2.18 5.9H5.09c.23-2.66 1.31-5.23 2.93-6.93 1.48-.97 3.41-.97 4.89 0z"/></svg>
             </a>
-            <a href="https://github.com/ricardobinz/" target="_blank" rel="noreferrer noopener" aria-label="GitHub" className="text-gray-600 hover:text-gray-900">
+            <a href="https://github.com/ricardobinz/" target="_blank" rel="noreferrer noopener" aria-label="GitHub" className="text-gray-600 hover:text-gray-900" onClick={() => capture('footer_link_clicked', { dest: 'github' })}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path fillRule="evenodd" d="M12 2C6.48 2 2 6.58 2 12.26c0 4.51 2.87 8.32 6.86 9.67.5.09.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.79.62-3.38-1.37-3.38-1.37-.45-1.18-1.11-1.49-1.11-1.49-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.57 2.34 1.12 2.91.86.09-.66.35-1.12.64-1.38-2.23-.26-4.58-1.15-4.58-5.13 0-1.13.39-2.06 1.03-2.79-.1-.26-.45-1.31.1-2.72 0 0 .84-.28 2.75 1.06A9.3 9.3 0 0 1 12 7.07c.85 0 1.71.12 2.51.34 1.9-1.34 2.74-1.06 2.74-1.06.55 1.41.2 2.46.1 2.72.64.73 1.03 1.66 1.03 2.79 0 3.99-2.36 4.86-4.61 5.12.36.32.69.95.69 1.92 0 1.39-.01 2.51-.01 2.85 0 .27.18.58.69.48 3.98-1.35 6.85-5.16 6.85-9.67C22 6.58 17.52 2 12 2Z" clipRule="evenodd"/></svg>
             </a>
           </div>
@@ -378,6 +386,7 @@ export default function Dashboard() {
                   size="sm"
                   onClick={() => {
                     try {
+                      capture('export_data_clicked')
                       exportData()
                     } catch (e) {
                       alert('Export failed')
@@ -392,8 +401,10 @@ export default function Dashboard() {
                   size="sm"
                   className="text-gray-600 border-gray-200 hover:bg-red-50 hover:text-red-700"
                   onClick={async () => {
-                    if (!window.confirm(t('confirm.delete_permanently'))) return
+                    const ok = window.confirm(t('confirm.delete_permanently'))
+                    if (!ok) { capture('delete_data_cancelled'); return }
                     try {
+                      capture('delete_data_confirmed')
                       await eraseRemoteData()
                       alert('Your data has been deleted.')
                     } catch (e) {
