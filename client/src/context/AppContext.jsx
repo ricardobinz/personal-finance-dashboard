@@ -26,16 +26,52 @@ const defaultExpenses = { categories: [] } // [{ id, name, amount }]
 const defaultIncomes = { categories: [] } // [{ id, name, amount }]
 const defaultHistory = [] // { date: ISO, netWorth }
 
+// Demo data to show when users are logged out (never persisted)
+const demoAssets = [
+  { id: 'demo-a1', name: 'Emergency Fund', value: 10000, targetPercent: 10 },
+  { id: 'demo-a2', name: 'Stocks', value: 30000, targetPercent: 60 },
+  { id: 'demo-a3', name: 'International Stocks', value: 12000, targetPercent: 20 },
+  { id: 'demo-a4', name: 'Bonds', value: 8000, targetPercent: 10 },
+]
+const demoAssumptions = {
+  pessimistic: 0.03,
+  realistic: 0.07,
+  optimistic: 0.10,
+  contributionAmount: 800,
+  contributionFrequency: 'monthly',
+  years: 25,
+}
+const demoExpenses = {
+  categories: [
+    { id: 'demo-e1', name: 'Housing', amount: 1500 },
+    { id: 'demo-e2', name: 'Food', amount: 600 },
+    { id: 'demo-e3', name: 'Transportation', amount: 300 },
+    { id: 'demo-e4', name: 'Utilities', amount: 200 },
+    { id: 'demo-e5', name: 'Leisure', amount: 250 },
+  ],
+}
+const demoIncomes = {
+  categories: [
+    { id: 'demo-i1', name: 'Salary', amount: 5200 },
+    { id: 'demo-i2', name: 'Side Hustle', amount: 400 },
+  ],
+}
+const demoHistory = [
+  { date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 90).toISOString(), netWorth: 54000 },
+  { date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60).toISOString(), netWorth: 57000 },
+  { date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(), netWorth: 60000 },
+]
+
 const AppContext = createContext(null)
 
 export function AppProvider({ children }) {
   const { user } = useAuth()
-  // Unauthenticated by default: start with empty/default state
-  const [assets, setAssetsState] = useState(defaultAssets)
-  const [assumptions, setAssumptionsState] = useState(defaultAssumptions)
-  const [expenses, setExpensesState] = useState(defaultExpenses)
-  const [incomes, setIncomesState] = useState(defaultIncomes)
-  const [history, setHistory] = useState(defaultHistory)
+  // Show demo data for unauthenticated users; real data loads when authenticated
+  const [assets, setAssetsState] = useState(user ? defaultAssets : demoAssets)
+  const [assumptions, setAssumptionsState] = useState(user ? defaultAssumptions : demoAssumptions)
+  const [expenses, setExpensesState] = useState(user ? defaultExpenses : demoExpenses)
+  const [incomes, setIncomesState] = useState(user ? defaultIncomes : demoIncomes)
+  const [history, setHistory] = useState(user ? defaultHistory : demoHistory)
   const [hydratedFromCloud, setHydratedFromCloud] = useState(false)
   const lastSavedRef = useRef(null)
 
@@ -46,14 +82,14 @@ export function AppProvider({ children }) {
   useEffect(() => { if (user) setJSON(STORAGE_KEYS.incomes, incomes) }, [user, incomes])
   useEffect(() => { if (user) setJSON(STORAGE_KEYS.history, history) }, [user, history])
 
-  // On sign-out: clear in-memory state and localStorage
+  // On sign-out: set demo data and clear localStorage
   useEffect(() => {
     if (!user) {
-      setAssetsState(defaultAssets)
-      setAssumptionsState(defaultAssumptions)
-      setExpensesState(defaultExpenses)
-      setIncomesState(defaultIncomes)
-      setHistory(defaultHistory)
+      setAssetsState(demoAssets)
+      setAssumptionsState(demoAssumptions)
+      setExpensesState(demoExpenses)
+      setIncomesState(demoIncomes)
+      setHistory(demoHistory)
       try {
         localStorage.removeItem(STORAGE_KEYS.assets)
         localStorage.removeItem(STORAGE_KEYS.assumptions)
